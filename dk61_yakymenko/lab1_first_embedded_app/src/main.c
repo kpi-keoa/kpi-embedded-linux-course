@@ -6,13 +6,13 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-int x=0;
+int x = 0;
 
-void *inc(void *cycle_times_void)
+void *inc(void *args)
 {
-	int *cycle_times = (int *)cycle_times_void;
+	int cycle_times = *(int *)args;
 	
-	while (++x < *cycle_times) {
+	while (++x < cycle_times) {
 		usleep(1);
 	}
 
@@ -21,10 +21,10 @@ void *inc(void *cycle_times_void)
 	return NULL;
 }
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
 	if (argc != 2) {	
-		printf("USAGE: ./name [cycle_times]\n");
+		printf("USAGE: %s [cycle_times]\n", argv[0]);
 		return -1;
 	}	
 	int cycle_times = atoi(argv[1]);
@@ -32,7 +32,7 @@ int main(int argc, char** argv)
 	printf("Cycle times: %d\n", cycle_times);
 
 	pthread_t inc_thread;
-	pthread_create(&inc_thread, NULL, inc, &cycle_times);
+	pthread_create(&inc_thread, NULL, &inc, &cycle_times);
 
 
 	while (++x < cycle_times) {
