@@ -6,7 +6,7 @@
 #include <stdbool.h>
 
 // TODO: add .gitignore, README.rst, fix Makefile, add license
-volatile long long int global_cnt = 0;
+volatile long long global_cnt = 0;
 struct arg_struct {
         bool mutex_enable;
         pthread_mutex_t mutex;
@@ -21,13 +21,11 @@ struct arg_struct {
  *  As an argument, the function takes a structure.
  *  Before passing it to the function, the struct is casted to void*.
  *  Then it's casted back to the 'struct arg_struct'.
- * 
- * 
  */
-void* inc_foo(void*);
-int main (int argc, char** argv) 
+void *inc_foo(void*);
+int main(int argc, char **argv) 
 {      
-        struct arg_struct* foo_args = malloc(sizeof(struct arg_struct));
+        struct arg_struct *foo_args = malloc(sizeof(*foo_args));
         int opt;
         while((opt = getopt(argc, argv, "Mhva:")) != -1) {
                 switch(opt) {
@@ -41,17 +39,15 @@ int main (int argc, char** argv)
                 case '?':
                 //fall-through
                 case 'h':
-                        printf("usage : ./a.out -a <value>\n");
-                        printf("'-M' for enabling mutex.\n");
-                        printf("'-a' <value> setting value to which threads will count to. \n");
-                        printf("'-v' to have more output information.\n");
-                        printf("'-h' for help.\n");
+                        printf("usage : %s -a <value>\n", argv[0]);
+                        printf("'-M' for enabling mutex.\n"
+                               "'-a' <value> setting value to which threads will count to. \n"
+                               "'-v' to have more output information.\n"
+                               "'-h' for help.\n");
                         return 0;
-                        break;
                         case 'v':
                         foo_args->is_verbose = true;
                         break;
-
                 }
         }
 
@@ -77,18 +73,18 @@ int main (int argc, char** argv)
         return 0;
 }
 
-void* inc_foo(void* args)
+void *inc_foo(void *args)
 {
-        struct arg_struct* arguments = (struct arg_struct *)args;
+        struct arg_struct *arguments = (struct arg_struct *)args;
         if(arguments->mutex_enable) {
                 pthread_mutex_lock(&arguments->mutex);
                 if(arguments->is_verbose)
                         printf("Thread locked !\n");    
         }
-        for(volatile long long int i = 0; i < arguments->inc_amnt; i++)
+        for(volatile long long i = 0; i < arguments->inc_amnt; i++)
                 global_cnt++;
 
-        if(arguments -> mutex_enable) {
+        if(arguments->mutex_enable) {
                 pthread_mutex_unlock(&arguments->mutex);
                 if(arguments->is_verbose)
                         printf("Thread unlocked !\n");
