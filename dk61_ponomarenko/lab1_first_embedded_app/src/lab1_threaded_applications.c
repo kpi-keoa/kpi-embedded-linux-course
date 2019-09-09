@@ -3,15 +3,14 @@
 #include <stdio.h>
 #include <time.h>
 
-#define THREADS_MAX_AMOUNT 2
+const int THREADS_MAX_AMOUNT = 2;
 
 int thread_cnt = 0, loop_length = 0;
 
 void *thread(void *argument)
 {
 	loop_length = *(int*)argument;
-	while (thread_cnt++ < loop_length) {
-        }
+	while (thread_cnt++ < loop_length);
         return NULL;
 }
 
