@@ -11,4 +11,3 @@ $(TARGETS):
 	$(CC) $(CFLAGS) -O2 $@.c -o $@O2.o
 clean:
 	rm -f *.i *.o *.s
-

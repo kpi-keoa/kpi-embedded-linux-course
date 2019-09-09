@@ -1,4 +1,5 @@
 #include <stdio.h>
+
 #include <stdlib.h>
 #include <pthread.h>
 
@@ -21,6 +22,7 @@ int main(void)
 {
 	pthread_t id[NUM_OF_THREADS];   
 	
+
 	int offset = 1; // our thread_arg
 	int res = 0;
 	for (int i = 0; i < NUM_OF_THREADS; i++) {	
@@ -42,4 +44,3 @@ int main(void)
 	printf("Sum = %lld\n", sum);
 	return 0;
 }
-
