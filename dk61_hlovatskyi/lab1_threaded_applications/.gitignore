@@ -1,3 +1,5 @@
+# Based on GitHub C.gitignore (https://github.com/github/gitignore)
+
 # Prerequisites
 *.d
 
@@ -54,7 +56,3 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
-
-
-# Based on GitHub C.gitignore (https://github.com/github/gitignore)
-

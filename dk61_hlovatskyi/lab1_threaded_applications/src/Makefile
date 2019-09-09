@@ -2,7 +2,7 @@ TARGETS = threads
 
 CC = gcc
 
-CFLAGS = -g -save-temps -Wall -Wextra -Wpedantic -Werror -std=c99 -pthread 
+CFLAGS =-save-temps -Wall -Wextra -Wpedantic -Werror -std=c99 -D_REENTRANT  -lpthread 
 
 all: clean $(TARGETS)
 
