@@ -1,3 +1,5 @@
+# Based on GitHub C.gitignore (https://github.com/github/gitignore)
+
 # Prerequisites
 *.d
 
@@ -50,3 +52,9 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# KDE's Dolphin directory's setting file
+.directory
+
+# my own directory with build files
+build
