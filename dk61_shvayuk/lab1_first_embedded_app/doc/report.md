@@ -2,10 +2,10 @@
 
 У ході виконання лабораторної роботи №1 була написана програма на мові С, що інкрементує глобальну змінну із двох потоків. Багатопотоковість реалізована за допомогою бібліотеки pthread.
 Вихідний код програми доступний за посиланням:
-[https://github.com/maximwowpro/kpi-embedded-linux-course/blob/pr/dk61_shvayuk/lab1_threaded_applications/src/example_mt.c]
+[cbhwtdbq rjl](https://github.com/maximwowpro/kpi-embedded-linux-course/blob/pr/dk61_shvayuk/lab1_threaded_applications/src/example_mt.c)
 
 Збірка програми виконується за допомогою системи збірки Make. Makefile має дві функції: видалення попеедніх версій бінарних файлів програми та, власне, збірка програми. Його вихідний доступний за посиланням:
-[https://github.com/maximwowpro/kpi-embedded-linux-course/blob/pr/dk61_shvayuk/lab1_threaded_applications/Makefile]
+[сирцевий код](https://github.com/maximwowpro/kpi-embedded-linux-course/blob/pr/dk61_shvayuk/lab1_threaded_applications/Makefile)
 
 Результат виконання програми на платформах х86 та ARM виявився ідентичним: програма завжди показувала правильний результат.
 Результат виконання на платформі х86:

@@ -28,10 +28,10 @@ int main(int argc, char *argv[])
         return 1;
     }
         
-	for (int i = 0; i < num_threads; i++) {
+	for (int i = 0; i < num_threads; i++) {
 		if (0 != pthread_create(&threads[i], NULL, &threadfunc, NULL)) {
             printf("Could not create the thread, abort.\n");
-            return 3;
+            return 2;
         }
     }
 	
@@ -39,12 +39,12 @@ int main(int argc, char *argv[])
 	
 	if (0 != pthread_join(threads[0], NULL)) {
         printf("Could not join the thread, abort.\n");
-        return 4;
+        return 3;
     }
     
 	if (0 != pthread_join(threads[1], NULL)) {
         printf("Could not join the thread, abort.\n");
-        return 5;
+        return 4;
     }
 	
 	printf("Counter value: %i\n", cnt);
