@@ -4,11 +4,9 @@
 
 int cnt = 0; 
 
-void *add_func()
+void *add_func(void *arg)
 {	
-	int i;
-	
-	for (i = 0; i < 10000000; i++)
+	for (int i = 0; i < 10000000; i++)
 		cnt += 1;
 
 	return NULL;
@@ -20,8 +18,8 @@ int main(void)
 	
 	clock_t start = clock();
 
-	pthread_create(&thread_1, NULL, add_func, NULL);
-	pthread_create(&thread_2, NULL, add_func, NULL);
+	pthread_create(&thread_1, NULL, &add_func, NULL);
+	pthread_create(&thread_2, NULL, &add_func, NULL);
 	pthread_join(thread_1, NULL);
 	pthread_join(thread_2, NULL);
 
@@ -32,3 +30,4 @@ int main(void)
 
 	return 0;
 }
+
