@@ -1,9 +1,8 @@
 #include <pthread.h>
 #include <stdio.h>
+#include <stdlib.h>
 
-
-long long int count; 
-long long int atoi(const char *nptr);
+long long count; 
 void *thread_func(void *argument);
 
 int main(int argc, char *argv[]) 
@@ -19,19 +18,19 @@ int main(int argc, char *argv[])
   		return -1;
 	}
 
-	if (atoi(argv[1]) < 0) {
+	if (atoll(argv[1]) < 0) {
   		fprintf(stderr,"Please, try positive value\n");
   		return -1;
 	}
 	
 	/**
-	 * We should call set task cpu() on a create threads (2, in our case). 
+	 * We should call set task pthread_create() on a create threads (2, in our case). 
 	 */
-	pthread_create(&tid,NULL,thread_func,argv[1]);
-	pthread_create(&tid2,NULL,thread_func,argv[1]);
+	pthread_create(&tid, NULL, &thread_func, argv[1]);
+	pthread_create(&tid2, NULL, &thread_func, argv[1]);
 
-  	pthread_join(tid,NULL);
-	pthread_join(tid2,NULL);
+  	pthread_join(tid, NULL);
+	pthread_join(tid2, NULL);
   	printf("count = %llu\n",count);
 }
 
@@ -43,7 +42,7 @@ int main(int argc, char *argv[])
 void *thread_func(void *argument) 
 {
 	
-	long long int i, upper = atoi(argument);
+	long long i, upper = atoll(argument);
 
   	if (upper > 0) {
     		for (i = 1; i <= upper; i++)
