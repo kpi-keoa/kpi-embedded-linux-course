@@ -1,10 +1,1 @@
-all: ttt
-
-ttt: main.o
-     gcc main.o -o -O0 -lpthread ttt
-
-main.o: main.c
-     gcc -c main.c
-
-clean:
-     rm -rf *.o ttt
+all: gcc -o main -std=c99 -O0 -lpthread main.c
