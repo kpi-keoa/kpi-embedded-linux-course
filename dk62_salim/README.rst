@@ -8,5 +8,5 @@
 * **Ім'я:** Салім Максим
 * **Організація/Університет:** `НТУУ 'КПІ' <https://kpi.ua/ua>`__  
 * **Підрозділ:** `Факультет електроніки, кафедра КЕОА <http://keoa.kpi.ua/go/cPath/0_20737/lang/en/index.htm?language=ua>`__
-* **Telegram:** `@maksimo0 <https://tg.me/maksimo0>`__
+* **Telegram:** `@maksimo0 <https://t.me/maksimo0>`__
 * **Email:** `mkdjsl@gmail.com <mailto:mkdjsl@gmail.com>`_

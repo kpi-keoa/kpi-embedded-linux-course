@@ -6,6 +6,7 @@ int cnt = 0;
 
 void *add_func(void *arg)
 {	
+	(void)arg;
 	for (int i = 0; i < 10000000; i++)
 		cnt += 1;
 
