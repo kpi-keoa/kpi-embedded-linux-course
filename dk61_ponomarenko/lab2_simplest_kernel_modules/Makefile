@@ -24,4 +24,11 @@ clean:
 	-rm -rf src/$(addsuffix .cmd,$(addprefix .,$(obj-m)))
 	-rm -rf src/$(addsuffix .cmd,$(addprefix .,$(obj-m:.o=.ko)))
 	-rm -rf src/$(addsuffix .cmd,$(addprefix .,$(obj-m:.o=.mod.o)))
+<<<<<<< HEAD
+<<<<<<< HEAD
 	
+=======
+>>>>>>> e2df71a... lab2_simplest_kernel_modules
+=======
+	
+>>>>>>> 329c950... lab2_simplest_kernel_modules

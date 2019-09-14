@@ -41,4 +41,11 @@ static void __exit firstmod_exit(void)
  
 module_init(firstmod_init);
 module_exit(firstmod_exit);
+<<<<<<< HEAD
 
+=======
+<<<<<<< HEAD
+
+=======
+>>>>>>> e2df71a... lab2_simplest_kernel_modules
+>>>>>>> df45dd5f5991ab2adcb7d02f42879ac941f6d6d5
