@@ -24,3 +24,4 @@ clean:
 	-rm -rf src/$(addsuffix .cmd,$(addprefix .,$(obj-m)))
 	-rm -rf src/$(addsuffix .cmd,$(addprefix .,$(obj-m:.o=.ko)))
 	-rm -rf src/$(addsuffix .cmd,$(addprefix .,$(obj-m:.o=.mod.o)))
+	
