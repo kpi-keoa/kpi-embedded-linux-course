@@ -10,6 +10,10 @@ The main goal of this folder is to show the results.
 **University:** “National Technical University of Ukraine "Kyiv Polytechnic Institute named after Igor Sikorsky"
 
 
-You can also contact me:
-Telegram: @Bramory <https://tg.me/Bramory>
+**Contacts**
 
+You can also contact me:
+
+**Telegram:** @Bramory <https://tg.me/Bramory>
+
+**E-mail** <glovatskiy.dmitriy@gmail.com>

@@ -2,7 +2,8 @@
 # (!) using paths with spaces may not work with Kbuild
 
 # this is what is used by Kbuild
-obj-m += firstmod.o
+SRC = src/
+obj-m += src/firstmod.o
 
 # directory containing Makefile for kernel build
 KBUILDDIR := /lib/modules/$(shell uname -r)/build/
@@ -19,10 +20,7 @@ tidy:
 # we link original clean to target named tidy
 clean:
 	-rm -f modules.order Module.symvers
-	-rm -rf .tmp_versions
-	-rm -f $(obj-m) $(obj-m:.o=.mod.o) $(obj-m:.o=.mod.c)
-	-rm -f $(addsuffix .cmd,$(addprefix .,$(obj-m)))
-	-rm -f $(addsuffix .cmd,$(addprefix .,$(obj-m:.o=.ko)))
-	-rm -f $(addsuffix .cmd,$(addprefix .,$(obj-m:.o=.mod.o)))
-
+	-rm -rf .tmp_versions $(SRC).tmp_versions
+	-rm -f *.cmd *.o 
+	-rm -f $(SRC).*.cmd $(SRC)*.o $(SRC)firstmod.mod.c
 	
