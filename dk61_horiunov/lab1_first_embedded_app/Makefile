@@ -3,9 +3,9 @@ CFLAGS =   -lpthread
 TARGET = first_lab/test_lab1.c
 RESULT_F = first_result
 RESULT_S = second_result
-.PHONY: clean
+.PHONY: clean build help
 
-all: build clean
+all: build clean 
 
 build:
 	$(CC) -o $(RESULT_F) -O0 $(CFLAGS) $(TARGET)

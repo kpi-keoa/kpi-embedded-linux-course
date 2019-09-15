@@ -3,7 +3,7 @@
 
 unsigned int global_cnt = 0;
 
-void *first_thread(void*param);
+void *first_thread(void *param);
 
 
 int main(void)
@@ -19,11 +19,10 @@ int main(void)
 	printf("Global counter count to %i\n",global_cnt);
 }
 
-void *first_thread(void*param)
+void *first_thread(void *param)
 {
 	for (int i = 0; i < 100000000; i++) {
 	
 		global_cnt ++;	
 	}
-
 }
