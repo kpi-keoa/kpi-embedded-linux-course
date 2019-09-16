@@ -1,4 +1,4 @@
-# based on https://linux.die.net/lkmpg/hello2.html by Peter Jay Salzman
+# based on https://linux.die.net/lkmpg/hello2.html by Peter Jay Salzman         
 # (!) using paths with spaces may not work with Kbuild
 
 # this is what is used by Kbuild
@@ -18,10 +18,10 @@ tidy:
 
 # we link original clean to target named tidy
 clean:
-	-rm -rf src/modules.order src/Module.symvers
-	-rm -rf src/.tmp_versions
-	-rm -rf src/$(obj-m) $(obj-m:.o=.mod.o) src/$(obj-m:.o=.mod.c)
-	-rm -rf src/$(addsuffix .cmd,$(addprefix .,$(obj-m)))
-	-rm -rf src/$(addsuffix .cmd,$(addprefix .,$(obj-m:.o=.ko)))
-	-rm -rf src/$(addsuffix .cmd,$(addprefix .,$(obj-m:.o=.mod.o)))
+	-rm -f modules.order Module.symvers
+	-rm -f .tmp_versions
+	-rm -f $(obj-m) $(obj-m:.o=.mod.o) $(obj-m:.o=.mod.c)
+	-rm -f $(addsuffix .cmd,$(addprefix .,$(obj-m)))
+	-rm -f $(addsuffix .cmd,$(addprefix .,$(obj-m:.o=.ko)))
+	-rm -f $(addsuffix .cmd,$(addprefix .,$(obj-m:.o=.mod.o)))
 

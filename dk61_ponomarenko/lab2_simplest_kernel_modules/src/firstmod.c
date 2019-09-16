@@ -1,41 +1,41 @@
-#include <linux/module.h>	// required by all modules
-#include <linux/kernel.h>	// required for sysinfo
-#include <linux/init.h>		// used by module_init, module_exit macros
-#include <linux/jiffies.h>	// where jiffies and its helpers reside
-#include <linux/interrupt.h>	// library, that supports tasklets
+// based on https://gist.github.com/itrobotics/a680c49422a8ff995125 by pantoniou
 
-MODULE_DESCRIPTION("Basic module demo: init, deinit, printk, jiffies, tasklet");
+#include <linux/module.h>
+#include <linux/kernel.h>
+#include <linux/init.h>
+#include <linux/jiffies.h>
+#include <linux/interrupt.h>
+
+MODULE_DESCRIPTION("Basic module: init, deinit, printk, jiffies, tasklet");
 MODULE_AUTHOR("bgdpn");
-MODULE_VERSION("0.1");
-MODULE_LICENSE("Dual MIT/GPL");		// this affects the kernel behavior
+MODULE_VERSION("0.2");
+MODULE_LICENSE("Dual MIT/GPL");
 
-static char *entered_string = "example_of_a_string";
+static char *name = "username";
 
-module_param(entered_string, charp, 0);	// charp -> character pointer
-MODULE_PARM_DESC(entered_string, "A character string");
+module_param(name, charp, 0);
+MODULE_PARM_DESC(name, "Name of user");
 
-static void func(unsigned long tasklet_arg);
+// without declaration of this function program will not compile
+static void tasklet_func(unsigned long _unused);
 
-// tasklet_name - name of the tasklet
-// func - function, that is being executed as a part of the tasklet
-// 0 - Data to be passed to the function “func”
+DECLARE_TASKLET(tasklet_name, tasklet_func, 0); 
 
-DECLARE_TASKLET(tasklet_name, func, 0); 
-
-static void func(unsigned long tasklet_arg)
+static void tasklet_func(unsigned long _unused)
 {
-	printk(KERN_INFO "Tasklet is running, jiffie count is: %lu\n", jiffies);
+	printk(KERN_INFO "Tasklet is running, jiffies is: %lu\n", jiffies);
 }
 
 static int __init firstmod_init(void)
 {
-	printk(KERN_INFO "Hello, %s!\njiffies= %lu\n", entered_string, jiffies);
-	func(jiffies);
+	printk(KERN_INFO "Hello, %s!\njiffies = %lu\n", name, jiffies);
+	tasklet_schedule(&tasklet_name);
 	return 0;
 }
  
 static void __exit firstmod_exit(void)
 {
+	tasklet_kill(&tasklet_name);
 	printk(KERN_INFO "Long live the Kernel!\n");
 }
  
