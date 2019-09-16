@@ -35,7 +35,30 @@
 3. Визначення часу між двома включеннями на різних архітектурах
 ----------------
 
-Через деякі технічні проблеми в мене не вийшло провести маніпуляції з платою в цьому та 4-му завданні, тому поки я їх пропустив, щоб виконати повністью в найближчий час. 
+*Технічні проблеми досі не вирішені, тому доповнюю це завдання розрахунком лише на ``х86``.*
+
+Щоб визначити час між двома включенями я визначив jiffies в перший момент часу, та через 10 хвилин. Отрима такі результати:
+
+ .. table:: Табилця 1. Значення jiffies для різних архітектур.
+ 	
+ +------------------+------------+------------+
+ |  Архітектура     |     t1     |  t1 + 10хв |
+ +==================+============+============+
+ |      x86         | 4301461712 | 4301642601 |
+ +------------------+------------+------------+
+ |      ARM         |            |            |
+ +------------------+------------+------------+
+ 
+**t = (t1 + 10) - t1  = 180889**
+
+Значння ``t`` є кількістью тіків системного тайммеру за, приблизно, 10 хвилин, це значення збільшується при кожному перериванні системного таймеру, так як за 
+1 секунду відбувається ``N`` переривать таймеру, значення jiffies збільшиться на N, тому час в секундах дорівнює ``jiffies/N``.
+На моїй x86 N = 300.
+Тепер переведемо це значення в хвилини:
+
+**T = 180889 / 300 = 602.9** секунд, що дорівнює **10.04** хвилини.
+
+ 
 
 4. Експерементальний розрахунок
 ---------------
@@ -58,14 +81,15 @@
 
   .. image:: img/hellora7e.png
 
-6. Додавання тасклету
+6. Визначення ``jiffies`` через тасклет
 --------------
 
 Тасклет - достатньо складна річ, яка виконує відкладену обробку переривань. Спочатку потрібно задекларувати тасклет.
-Для цього викликаємо ``DECLARE_TASKLET(tasklet, func, 0)``, де ``tasklet``- ім'я тасклету, ``func`` - функція-обробник,
-``0``- аргумент, що передається в функцію обробник. Щоб вивести значення *jiffies* за дапомогою тасклету, я в функції ``func``
-за допомогою ``printk`` вивожу аргумент ,що передається в ``func``. Потім, в функції  ``__init firstmod_init`` викликаю ``func``
-передаючи ``jiffies`` як аргумент.
+Для цього викликаємо ``DECLARE_TASKLET(tasklet, tasklet_handler, 0)``, де ``tasklet``- ім'я тасклету, ``tasklet_handler`` - функція-обробник,
+``0``- аргумент, що передається в функцію обробник. В цьому випадку значення передавати в функцію не потрібно, 
+тому я вказав на місці фактичного аргументу ``__unsed`` ,що означає, що функіція не прийматиме аргумет.
+Щоб вивести значення *jiffies* за дапомогою тасклету, я в функції ``tasklet_handler``
+за допомогою ``printk`` вивожу значення ``jiffies``. Потім, в функції  ``__init firstmod_init`` викликаю ``tasklet_handler``.
 
   .. image:: img/tasklet.png
 
@@ -73,42 +97,43 @@
  
  .. code-block:: C
  
-  #include <linux/module.h>	// required by all modules
-  #include <linux/kernel.h>	// required for sysinfo
-  #include <linux/init.h>		// used by module_init, module_exit macros
-  #include <linux/jiffies.h>	// where jiffies and its helpers reside
-  #include <linux/interrupt.h>
-
-  MODULE_DESCRIPTION("Basic module demo: init, deinit, printk, jiffies");
-  MODULE_AUTHOR("thodnev");
-  MODULE_VERSION("0.1");
-  MODULE_LICENSE("Dual MIT/GPL");		// this affects the kernel behavior
-
-  static char *name = "name";
-
-  module_param (name, charp, 0000);
-
-  void func(unsigned long arg)
-  {
-    printk(KERN_INFO "Tasklet jiffies = %lu\n", arg);
-  }
-
-  DECLARE_TASKLET(tasklet, func, 0);
+  void tasklet_handler(unsigned long __unused)
+  {	
+	
+	printk(KERN_INFO "Tasklet jiffies = %lu\n", jiffies);
+	
+  } 
 
   static int __init firstmod_init(void)
   {
-    printk(KERN_INFO "Hello, %s\njiffies = %lu\n", name, jiffies);
-
-    func(jiffies);
-
-    return 0;
+	tasklet_schedule(&tasklet);
+	
+	printk(KERN_INFO "Hello, %s\njiffies = %lu\n", name, jiffies);
+		
+	tasklet_handler(jiffies);
+	
+	return 0;
   }
+  
+  
+Перед викликом тасклета, його роботу потрібно запланувати та поставити в чергу.
+Цю дію виконує функція ``tasklet_schedule()``, також є функції ``tasklet_hi_schedule`` ``tasklet_hi_schedule_first``, 
+що відрізняються приорітетом виконання.  
+Після виконання тасклет повинен бути видалений з черги на виконання, це робить функція tasklet_kill().
 
-  static void __exit firstmod_exit(void)
+ .. code-block:: C
+
+  static void tasklet_exit(void)
   {
-    printk(KERN_INFO "Long live the Kernel!\n");
+	tasklet_kill(&tasklet);
+	
   }
-
-  module_init(firstmod_init);
-  module_exit(firstmod_exit);
+ 
+Звичайно, не обов'язково було створювати функцію для зняття тасклету з черги (``tasklet_exit``), просто мені сподобалось як це було реалізовано 
+в прикладі, на який я орієнтувався, його можна переглянути за посиланням: ````  
+ 
+Висновок:
+------------
+На системі x86 jiffies показав себе як відносно точний механізм відліку часу, похибка склала 0.4%.
+*To be continued*  
 
