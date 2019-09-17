@@ -6,11 +6,9 @@ import re
 
 
 def get_logs():
-    kern_log = subprocess.Popen(['cat', '/var/log/kern.log'], stdout=subprocess.PIPE)
-    # getting last 5 logs from kern.log
-    output = subprocess.check_output(('tail', '-5'), stdin=kern_log.stdout)
-    kern_log.wait()
-    return str(output)
+    # Assume file is short to fit in memory. Otherwise need to seek from the end
+    with open('/var/log/kern.log') as f:
+        return ''.join(list(f)[-3:])
 
 
 def get_jiffies(logs):
@@ -18,58 +16,67 @@ def get_jiffies(logs):
     jiffy = []
     match_jiffies = re.search('jiffies = (\d+)', logs)
     match_tasklet_jiffies = re.search('tasklet jiffies = (\d+)', logs)
-    if match_jiffies:
-        jiffy.append(match_jiffies.group(1))
-    else:
-        jiffy.append("no result")
 
-    if match_tasklet_jiffies:
+    try:
+        jiffy.append(match_jiffies.group(1))
+    except:
+        jiffy.append('no result')
+
+    try:
         jiffy.append(match_tasklet_jiffies.group(1))
-    else:
-        jiffy.append("no result")
+    except:
+        jiffy.append('no result')
 
     # returning list
     return jiffy
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Test jiffies")
-    parser.add_argument("-t", default="100", required=True,
-                        help="Time in seconds between stopping module and running it again")
-    parser.add_argument("-m", required=True,
-                        help="kernel module which should be started")
-    parser.add_argument("-u", default="TEST", help="name of user who's run the module")
-    parser.add_argument("-f", required=True,
-                        help="Kernel interrupt frequency")
-
+def main(args):
+    parser = argparse.ArgumentParser(description='Test jiffies')
+    parser.add_argument('-t', '--time',type=int, default='100', required=True,
+                        help='Time in seconds between stopping module and running it again')
+    parser.add_argument('-m', '--module', required=True,
+                        help='kernel module which should be started')
+    parser.add_argument('-u', '--user', default='TEST', help="name of user who's run the module")
+    parser.add_argument('-f', '--freq', type=int, required=True,
+                        help='Kernel timer interrupt frequency')
+    
     args = parser.parse_args()
-    int_freq = int(args.f)
-    timer = int(args.t)
-    module_name = args.m
-    username = "username=" + args.u
+    int_freq = int(args.freq)
+    timer = int(args.time)
+    module_name = args.module
+    username = 'username="%s"'.format(args.user)
 
     subprocess.call(['insmod', module_name, username])
     subprocess.call(['rmmod', module_name])
+
     jiffies_1 = get_jiffies(get_logs())
 
-    print("jiffies :", jiffies_1[0])
-    print("tasklet jiffies:", jiffies_1[1])
-    print("sleep for:", timer, "s..")
+    print('jiffies :', jiffies_1[0])
+    print('tasklet jiffies:', jiffies_1[1])
+    print('sleep for:', timer, 's..')
 
     time.sleep(timer)
     subprocess.call(['insmod', module_name, username])
     subprocess.call(['rmmod', module_name])
     jiffies_2 = get_jiffies(get_logs())
 
-    print("jiffies :", jiffies_2[0])
-    print("tasklet jiffies:", jiffies_2[1])
+    print('jiffies :', jiffies_2[0])
+    print('tasklet jiffies:', jiffies_2[1])
 
     jiff_diff = int(jiffies_2[0]) - int(jiffies_1[0])
     tasklet_jiff_diff = int(jiffies_2[1]) - int(jiffies_1[1])
     seconds = jiff_diff / int_freq
     seconds_tasklet = tasklet_jiff_diff / int_freq
 
-    print("time in seconds evaluated from jiffies:", seconds, "s")
-    print("time in seconds evaluated from tasklet_jiffies:", seconds_tasklet, "s")
+    print('time in seconds evaluated from jiffies: {:.2f} s'.format(seconds))
+    print('time in seconds evaluated from tasklet_jiffies: {:.2f} s'.format(seconds_tasklet))
+
+    
+if __name__ == '__main__':
+    from sys import argv
+    main(argv) 
+    
+    
 
 
