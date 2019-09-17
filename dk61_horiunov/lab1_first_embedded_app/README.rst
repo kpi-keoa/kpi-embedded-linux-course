@@ -1,3 +1,5 @@
+.. This report I have used as template from https://github.com/kpi-keoa/kpi-embedded-linux-course/blob/master/dk62_serhiienko/lab1_first_embedded_app/README.rst
+
 Лабораторна робота №1.Багатопоточність.
 ---------------------------------------
 Перша лабораторна робота присвячена вступу до курсу Embedded Linux 
@@ -5,7 +7,7 @@
 
 Завдання на першу частину
 -------------------------
-.. code-block::
+
 Завантажити та налаштувати Linux на платі Beagle Board:
 
 * Выкачать последний оффициальный Debian Stretch for BeagleBoard образ
@@ -18,7 +20,7 @@
 
 Завдання на другу частину
 -------------------------
-.. code-block::
+
 Потрібно написати програму, яка:
 
 * запускает два потока (используя pthread);

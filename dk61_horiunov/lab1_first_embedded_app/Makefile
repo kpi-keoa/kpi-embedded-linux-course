@@ -1,11 +1,11 @@
 CC = gcc
 CFLAGS =   -lpthread
-TARGET = first_lab/test_lab1.c
+TARGET = src/test_lab1.c
 RESULT_F = first_result
 RESULT_S = second_result
-.PHONY: clean
+.PHONY: clean build help all
 
-all: build clean
+all: build help
 
 build:
 	$(CC) -o $(RESULT_F) -O0 $(CFLAGS) $(TARGET)
@@ -13,6 +13,6 @@ build:
 	$(CC) -o $(RESULT_S) -O2 $(CFLAGS) $(TARGET)
 	./$(RESULT_S)
 clean:
-	-rm rf *.o $(RESULT_S) $(RESULT_F)
+	rm -rf *.o $(RESULT_S) $(RESULT_F)
 help:
 	 @echo 'For building  write: make build.For deleting write: make clean'
