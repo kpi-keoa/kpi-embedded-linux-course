@@ -1,4 +1,5 @@
-#Executable
+# Based on GitHub C.gitignore (https://github.com/github/gitignore)
+# Executable
 main
 
 # Prerequisites
