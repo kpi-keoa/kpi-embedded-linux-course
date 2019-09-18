@@ -1,10 +1,11 @@
 # Makefile for building application for lab1
+# Made by CYB3RSP1D3R
 
 CC = gcc
-CFLAGS = -c -Wall -std=c99 -O0 -save-temps -Werror -lpthread
-INCLUDE = -pthread
+CFLAGS = -c -Wall -std=c11 -O0 -Werror
 SOURCES	= main.c
 OBJECTS	= main.o
+INCLUDE = -pthread
 EXECUTABLE = 2_cores_counter
 
 all: $(EXECUTABLE)
