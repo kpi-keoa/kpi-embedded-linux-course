@@ -3,7 +3,7 @@
 
 SRCDIR = src
 BUILDDIR = .build
-
+EXTRA_CFLAGS:= -std=gnu11
 # this is what is used by Kbuild
 obj-m += kthread_mod.o
 
