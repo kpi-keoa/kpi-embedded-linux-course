@@ -28,7 +28,7 @@ MODULE_LICENSE("Dual MIT/GPL");		// this affects the kernel behavior
  * which is an instance of a struct kernel linked list.
  */
 
-static struct k_list {
+struct k_list {
 
 	struct list_head test_list;
 	int count_val;
@@ -71,9 +71,9 @@ static atomic_t *local_mutex;
 
 static atomic_t *create_lock(void)
 {
-	atomic_t *ptr_lock = (atomic_t *)kmalloc(sizeof(atomic_t), GFP_ATOMIC);
+	atomic_t *ptr_lock = kmalloc(sizeof(*ptr_lock), GFP_KERNEL);
 
-	if(!ptr_lock){
+	if (!ptr_lock) {
 
 		printk(KERN_ERR "Allocation error (ptr_lock)");	
 		goto errn;
@@ -116,16 +116,15 @@ static void unlock(atomic_t *argument)
 static int thread_func(void *argument)
 {
 	lock(local_mutex);
-	int i;
 
   	if (N > 0) {
-    		for (i = 1; i <= N; i++)
+    		for (int i = 1; i <= N; i++)
     			(*(int *)argument)++;
   	}
 
 	data = kmalloc(sizeof(struct k_list), GFP_KERNEL);
 	
-	if(!data){
+	if (!data) {
 
 		printk(KERN_ERR "Allocation error (data)");
 		goto errn;	
@@ -187,31 +186,31 @@ void delete_list(void)
 static int __init create_list_init(void) 
 {
 
-	count = (int *)kmalloc(sizeof(int), GFP_KERNEL);
+	count = kmalloc(sizeof(int), GFP_KERNEL);
 
-	if(!count){
+	if (!count) {
 
 		printk(KERN_ERR "Allocation error (count)");	
 		goto mem_error;
 	}	
 
 	*count = 0;
-	int i;
+	
 	local_mutex = create_lock();
 	
 	/** 
 	 * thread_t - Array of pointers to thread structures 
 	 */
 
-	struct task_struct **thread_t = (struct task_struct **)kmalloc(M * sizeof(struct task_struct *), \
-						GFP_KERNEL);
-	if(!thread_t){
+	struct task_struct **thread_t = kmalloc(M * sizeof(**thread_t), GFP_KERNEL);
+
+	if (!thread_t) {
 
 		printk(KERN_ERR "Allocation error (thread_t)");	
 		goto errn;
 	}
 
-	for (i = 0; i < M; i++){
+	for (int i = 0; i < M; i++) {
 
 		thread_t[i] = kthread_run(thread_func, (void*)count, "mykthread_%d", i);	
 
@@ -221,6 +220,7 @@ static int __init create_list_init(void)
 	return 0;
 
 	errn:
+		kfree(count);
    		kfree(thread_t);
    		return -ENOMEM;
 

@@ -8,6 +8,8 @@ CC=$(CROSS_COMPILE)gcc
 
 # this is what is used by Kbuild
 obj-m += src/threadmod.o
+EXTRA_CFLAGS:= -std=gnu11
+
 
 # directory containing Makefile for kernel build
 KBUILDDIR := /lib/modules/$(shell uname -r)/build/
