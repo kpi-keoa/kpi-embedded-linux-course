@@ -65,9 +65,9 @@ int thread_func(void *data)
 {
 	int *val = data;
 	for (int i = 0; i < incr_val; i++) {
-		//lock(arg);
+		lock(arg);
 		*val += 1;
-		//unlock(arg);
+		unlock(arg);
 		schedule();
 	}
 	struct_ptr = kmalloc(sizeof *struct_ptr, GFP_KERNEL);
@@ -119,8 +119,9 @@ static void __exit kmod_exit(void)
 	if (cnt) {
 		printk(KERN_NOTICE "Counter value is #%d!\n", *cnt);
 		kfree(cnt);
-	} else 
+	} else {
 		printk(KERN_NOTICE "Counter is not available!\n");
+	}
 	struct list_head *head_ptr;
 	struct list_head *tmp;	
 	list_for_each_safe(head_ptr, tmp, &(main_struct.list)) {
