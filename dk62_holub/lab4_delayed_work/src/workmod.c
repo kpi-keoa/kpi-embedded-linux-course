@@ -27,13 +27,10 @@ MODULE_LICENSE("Dual MIT/GPL");		// this affects the kernel behavior
  * It contains a special variable test_list, 
  * which is an instance of a struct kernel linked list.
  */
-
 struct k_list {
-
 	struct list_head test_list;
 	struct rcu_head rcu;
 	long long count_val;
-
 };
 
 /**
@@ -48,15 +45,12 @@ struct k_list {
  * if fields equal 1 -  kernel thread run now.
  * if fields equal 0 -  kernel thread not run now.
  */
-
 struct flags {
-
 	unsigned first_thread_active:1;
 	unsigned second_thread_active:1;
-
 };
 
-struct flags flags_stat = {0};
+static struct flags flags_stat = {0};
 
 static DEFINE_SPINLOCK(rcu_lock);
 struct timer_list timer;
@@ -77,7 +71,6 @@ struct task_struct **thread_t;
 /**
  * listtest_show_list - print the content of kernel linked list.    
  */
-
 static void listtest_show_list(struct list_head *a_list)
 {
 
@@ -98,7 +91,6 @@ static void listtest_show_list(struct list_head *a_list)
  * first_thread_func - function of increment global counter. 
  * @argument: pointer, which contains address of thread argument.   
  */
-
 static int first_thread_func(void *argument)
 {
   
@@ -117,7 +109,6 @@ static int first_thread_func(void *argument)
  * second_thread_func - function of increment global counter. 
  * @argument: pointer, which contains address of thread argument.   
  */
-
 static int second_thread_func(void *argument)
 {
 	
@@ -137,7 +128,6 @@ static int second_thread_func(void *argument)
  * work_handler - handler of delayed work. 
  * @argument: pointer, which contains address of work argument.   
  */
-
 void work_handler(struct work_struct *arg)
 {
 	
@@ -165,7 +155,6 @@ void work_handler(struct work_struct *arg)
  * timer_handler - handler timer. 
  * @tim: pointer, which contains address of timer argument.   
  */
-
 void timer_handler(struct timer_list *tim)
 {
 		
@@ -176,7 +165,7 @@ void timer_handler(struct timer_list *tim)
 	} else {
 
 		struct k_list *data;
-		if (!(data = kmalloc(sizeof(struct k_list), GFP_KERNEL))) {
+		if (!(data = kmalloc(sizeof(struct k_list), GFP_ATOMIC))) {
 			printk(KERN_ERR "Allocation error of node");
 		} else {
 			data->count_val = jiffies;
@@ -189,11 +178,9 @@ void timer_handler(struct timer_list *tim)
 	}
 }
 
-
 /**
  * delete_list - delete the content of kernel linked list.    
  */
-
 void delete_list(struct list_head *a_list)
 {
 
@@ -220,8 +207,6 @@ static int __init create_list_init(void)
 	/** 
 	 * thread_t - Array of pointers to thread structures 
 	 */
-
-
 	thread_t = kmalloc(sizeof(*thread_t) * NUM_OF_THREADS, GFP_KERNEL);
 
 	if (!thread_t) { 
@@ -230,10 +215,11 @@ static int __init create_list_init(void)
 		goto errn;
 	}
 
-	thread_t[0] = kthread_run(&first_thread_func, NULL, "mykthread_1");
 	flags_stat.first_thread_active = 1;
-	thread_t[1] = kthread_run(&second_thread_func, NULL, "mykthread_2");
+	thread_t[0] = kthread_run(&first_thread_func, NULL, "mykthread_1");
+		
 	flags_stat.second_thread_active = 1;
+	thread_t[1] = kthread_run(&second_thread_func, NULL, "mykthread_2");
 
 	INIT_DELAYED_WORK(&work, work_handler);
 	schedule_delayed_work(&work, msecs_to_jiffies(100));
@@ -250,7 +236,6 @@ static int __init create_list_init(void)
 
 }
 	
-
 static void __exit create_list_exit(void) 
 {
 	cancel_delayed_work(&work);
