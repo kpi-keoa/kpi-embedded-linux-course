@@ -13,11 +13,13 @@
 
 MODULE_DESCRIPTION("Basic module demo: init, deinit, printk, jiffies, tasklet");
 MODULE_AUTHOR("bramory; thodnev"); 
+
 MODULE_VERSION("0.1");
 MODULE_LICENSE("DualMIT/GPL");	//it affects the kernel behavior
 
 static char *user = "$username";
-module_param(user, charp, 0000);
+module_param(user, charp, 0);
+
 
 void tasklet_handler(unsigned long arg)
 {
