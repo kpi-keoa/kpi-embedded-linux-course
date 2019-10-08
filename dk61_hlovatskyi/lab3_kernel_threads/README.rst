@@ -30,11 +30,13 @@ The flags are broken up into three categories: action modifiers, zone modifiers,
 
 
 **Implementing**
+
 We are wrote a code to process syncronized threads that have an access to the global variable and list to work with. After processing results are save to the nodes of the lists. 
 To do that in a right way we need to use any syncronizing tools.
 Spinlocks were implemented with atomic variables and funcions declared in <asm/atomic.h> which guarantee that only one thread can have an access to shared resources.     
 
 **Module assembly and testing**
+
 Use ``make`` to build a module
 The main parts of the code are:
 thread function:
