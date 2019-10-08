@@ -58,15 +58,14 @@ But with spinlocks result is correct:
 .. image:: img/spinlock.png
 
 
-Just as in user-space, be careful to balance your allocations with your deallocations to prevent memory leaks and other bugs. Note, calling kfree(NULL) is explicitly checked for and safe.
+Just as in user-space, be careful to balance your allocations with your deallocations to prevent memory leaks and other bugs. Note, calling ```kfree(NULL)``` is explicitly checked for and safe.
 
 
-/*
 Used sources:
+
 <http://books.gigatux.nl/mirror/kerneldevelopment/0672327201/ch11lev1sec4.html>
 <https://www.ibm.com/developerworks/ru/library/l-linux_kernel_71/>
 <https://github.com/torvalds/linux/blob/master/include/linux/kthread.h>
-*/
 
 
 **Contacts**
