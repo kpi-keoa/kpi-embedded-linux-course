@@ -88,6 +88,24 @@
 По сути пишется обработчик внутри драйвера, который ассоциируется с определенным системным вызовом. Указатели на 
 эти функции обработчик и вмещает в себя структура ``file_operations``.
 
+В данной работе будет затронута тема структур данных в ядре. Связный список уже рассматривался, поговорим про деревья:
+Наряду с базисными деревьями (``radix trees``) ядро содержит реализацию структуры данных, известной под названием 
+"красно-чёрное дерево" (``red-black tree``). Красно-чёрные деревья (в ядре более известные, как ``rb_trees``) являются 
+разновидностью полусбалансированных деревьев. Каждый узел дерева содержит некое значение и не более двух дочерних узлов; 
+значение узла больше, чем значения любого из содержащихся в его левом поддереве или меньше любого из значений его правого 
+поддерева. Поиск значения возможен с самого первого глубокого узла обходом слева направо.
+
+Каждый узел красно-чёрного дерева может быть красного или чёрного цвета, корень дерева всегда чёрный. 
+Набор правил, исходя из которых окрашиваются узлы и когда должна происходить перебалансировка несколько сложен.
+В ядре множество мест, где используются красно-чёрные деревья. Планировщики ввода-вывода ``anticipatory`` (упреждающий), 
+``deadline`` (алгоритм крайнего срока) и ``CFQ`` (completely fair queuing - абсолютно честная очередь) используют красно-чёрные 
+деревья для отслеживания запросов; драйвер пакетной записи CD/DVD использует красно-чёрные деревья для этих же целей. 
+Код таймеров высокого разрешения использует красно-чёрное дерево для упорядочивания невыполненных запросов на таймеры. 
+Файловая система ``ext3`` отслеживает в красно-чёрных деревьях содержимое (записи) директорий. 
+Также с помощью красно-чёрных деревьев отслеживаются диапазоны виртуальных адресов (VMAs), дескрипторы файлов, 
+на которых применяется опрос вызовом epoll(), криптографические ключи и сетевые пакеты в планировщике 
+``hierarchical token bucket``.
+
 Выполнение  
 -----
 В директории ``src`` данной лабораторной работы находится исходный файл драйвера символьного устройства ядра ``hivemod.c`` 
@@ -164,40 +182,6 @@
           return 0;
         }
 
-#. Само обьявление и определение функции потоков наведено ниже:        
-   
-    .. code-block:: C
-    
-          static int thread_func(void *argument)
-          {
-            lock(local_mutex);
-            int i;
-
-              if (N > 0) {
-                  for (i = 1; i <= N; i++)
-                    (*(int *)argument)++;
-              }
-
-            data = kmalloc(sizeof(struct k_list), GFP_KERNEL);
-
-            if(!data){
-
-              printk(KERN_ERR "Allocation error (data)");
-              goto errn;	
-
-            }
-
-            data->count_val = *(int *)argument;
-            data->thread_cnt = (*(int *)argument)/N;
-
-            list_add(&data->test_list, &head_list);
-            unlock(local_mutex);
-
-            return 0;
-            errn:
-                kfree(data);
-                return -ENOMEM;
-          }
 
 #. Для обеспечения базовой функциональности чтения-записи устройства, добавлена функция обработчик системного вызова 
    ``lseek``. Реализация самая базовая, которая обеспечивает установку смещения в файле. В дальнейшем функция будет дополнена.
@@ -243,8 +227,101 @@
           unregister_chrdev_region(hive_dev, 1);
           return -1;
         }    
- 
-          
+
+#. Ниже представлен обработчик системного вызова ``ioctl``. Так как таких вызовов может быть достаточно много, то нужно
+   правильно определить какое именно действие запросил пользователь. Это делается с помощью параметра ``ioctl_num``, который
+   имеет особый формат. Для упрощения они используются через макросы, которые задекларированы в начале кода. 
+   ``CHG_BUF`` - отвечает за операцию изменения размера буфера, ``ADD_PHR`` - отвечает за добавление "магической строки" в конец 
+   буфера.
+
+    .. code-block:: C 
+    
+        #define CHG_BUF _IOW('V','a', unsigned long*)
+        #define ADD_PHR _IOW('B','b', unsigned long*)
+        
+        ...
+    
+        long cdev_ioctl(struct file *file, unsigned int ioctl_num, 
+                        unsigned long ioctl_param)
+        {
+          struct hive_item *item = hive_tree_get(&mytree, file);
+          if (NULL == item)
+            return -EBADF;
+          switch(ioctl_num) {
+                         case CHG_BUF:
+                            if(ioctl_param > item->length) {
+                              char *buf = kzalloc(sizeof(*buf) * ioctl_param, 
+                                    GFP_KERNEL);
+                              memcpy(buf, item->buffer, 
+                                sizeof(*buf)*item->length);
+                              kfree(item->buffer);
+                              item->buffer = buf;
+                              item->length = ioctl_param;
+
+                            } else {
+                              MOD_DEBUG(KERN_DEBUG, "Change buf not required");
+                              return -1;
+                            }                       
+                            break;
+                        case ADD_PHR:
+                            if ((strlen(item->buffer) + buffsize/2) > item->length) {
+                              char *buf = kzalloc(sizeof(*buf) 
+                                  * (item->length + buffsize/2), 
+                                  GFP_KERNEL);				
+                              strcat(buf, item->buffer);
+                              kfree(item->buffer);
+                              strcat(buf, magic_phrase);
+                              item->buffer = buf;
+                              item->length = item->length + buffsize/2;
+
+                            } else {
+
+                              strcat(item->buffer, magic_phrase);
+                            }
+
+                                              break;
+                        default:
+                          return -1;
+             }
+             return 0;
+        }
+
+#. Вместо связного списка был реализован механизм хранения структур устройства в красно-чёрном дереве. Главной особеностью 
+   является то, что элементы в нём важно необходимо правильно размещать в зависимости от того, по какому принципу выполняется 
+   сортировка в дереве. В нашем случае это структура ``file``. Ниже представлена функция вставки в дерево. В зависимости от резульатата
+   сравнения указателей на файл, выполняется движение по дереву и вставка. Остальные функции для работы с деревом работают по схожей 
+   идее и используют API для работы с деревом в ядре.
+   
+   .. code-block:: C 
+   
+      int tree_insert(struct rb_root *root, struct hive_item *data)
+      {
+        struct rb_node **new = &(root->rb_node), *parent = NULL;
+
+        /* Figure out where to put new node */
+        while (*new) {
+          struct hive_item *this = container_of(*new, struct hive_item, node);
+          int result = memcmp(data->file, this->file, sizeof(struct file));
+
+          parent = *new;
+          if (result < 0) {
+            new = &((*new)->rb_left);
+          } else if (result > 0) {
+
+            new = &((*new)->rb_right);
+
+          } else {
+            return 1;
+          }
+        }
+
+        /* Add new node and rebalance tree. */
+        rb_link_node(&data->node, parent, new);
+        rb_insert_color(&data->node, root);
+
+        return 0;
+      }
+    
 Сборка модуля и тестирование 
 -----          
 Процесс сборки и запуска проекта следующий:
@@ -263,22 +340,30 @@
 .. code-block:: C
 
     Opened fd of hive_dev = 3
-    Return from write callback, offset=20, message=TWERK!TWERK!TWERK!
+    Opened fd of hive_dev = 4
+    Return from write callback, offset=32, message=Wow, we made these bees TWERK !
+    Return from read callback, offset=32, message=Wow, we made these bees TWERK !
+    Return from write callback, offset=-1
+    device 4 : buffer size change to 100
+    Return from write callback, offset=69
+    Return from read callback, offset=69, message=Wow, we made these bees TWERK !Wow, these bees really hottest things
+    Return from read callback, offset=100, message=Wow, we made these bees TWERK !Wow, these bees really hottest thingsWow, we made these bees TWERK !
 
-    Return from read callback, offset=20, message=TWERK!TWERK!TWERK!
+    [  346.680970] /dev/hive_dev: device: Seeking to position: 0
+    [  346.680975] hivemod: hive: device: bytes read: 69, position: 69
 
-    [12752.243542] hivemod: Static dev 243:0 created
-    [12752.243544] hivemod: This hive has 7 bees
-    [12753.249172] hivemod: New file entry 0000000034bba9bb created
-    [12753.249568] hivemod: hive: bytes written: 20, position: 20
+    [  346.680994] /dev/hive_dev: device: Seeking to position: 0
+    [  346.680999] hivemod: hive: device: bytes read: 100, position: 100
 
-    [12753.249925] /dev/hive_dev: device: Seeking to position: 0
-    [12753.249931] hivemod: hive: device: bytes read: 20, position: 20
-
-    [12753.250186] hivemod: File entry 0000000034bba9bb unlinked
-    [12753.252563] hivemod: All honey reclaimed
+    [  346.681021] hivemod: File entry 00000000feaae122 unlinked
+    [  346.681028] hivemod: File entry 00000000999c373a unlinked
+    [  346.684722] hivemod: All honey reclaimed
     
 
-Как можно увидеть, в начале видна отработка тестовой программы, которая пытается сначала записать строку с помощью системного вызова ``write``.
+Как можно увидеть, в начале видна отработка тестовой программы, которая пытается сначала записать строку из первого массива с помощью системного вызова ``write`` в первое устройство.
 Затем с помощью ``lseek``, выставляется указатель положения в файле на начало и происходит считывание с помощью вызова ``read``. Код успешно вывел записаное 
-ранее сообщение. В логах ядра видны отладочные записи в лог про отработку обработчиков каждого системного вызова из пространства пользователя.
+ранее сообщение. Для второго устройства специально выполняется попытка записать строку с размером, которая больше размера буфера. Эта операция заканчивается
+с ошибкой ``-1``. Дальше это устройство запрашивает изменить размер буфера с помощью вызова ``ioctl``. Значение буфера увеличивается до 100.
+Происходит попытка вновь записать строку из второго массива в это устройство. На этот раз попытка удачна. В конце в это же устройство добавляется
+магическа строка из модуля, которая просто добавляется в исходный буфер, если для неё есть место. Если этого места нет - выполняется выделение места для неё и вставка.
+В логах ядра видны отладочные записи в лог про отработку обработчиков каждого системного вызова из пространства пользователя.

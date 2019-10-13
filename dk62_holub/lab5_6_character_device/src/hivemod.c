@@ -1,20 +1,18 @@
-/**
- * based on code by thodnev
- */
 #include <linux/module.h>	// required by all modules
 #include <linux/kernel.h>	// required for sysinfo
 #include <linux/init.h>		// used by module_init, module_exit macros
 #include <linux/jiffies.h>	// where jiffies and its helpers reside
-#include <linux/fs.h>
-#include <linux/list.h>
-#include <linux/errno.h>
-#include <linux/slab.h>
-#include <linux/cdev.h>
+#include <linux/fs.h>		// used by fs
+#include <linux/rbtree.h>	// generic rb_tree header 
+#include <linux/errno.h> 	// errno flags
+#include <linux/slab.h>		// used by kernel alloc
+#include <linux/ioctl.h>	// used by ioctl calls
+#include <linux/cdev.h>		// used by char dev
 #include <linux/uaccess.h>	// used by copy_to/from_user 
 
 MODULE_DESCRIPTION("Character device demo");
 MODULE_AUTHOR("MaksHolub");
-MODULE_VERSION("0.2");
+MODULE_VERSION("1.0");
 MODULE_LICENSE("Dual MIT/GPL");
 
 /**
@@ -31,6 +29,9 @@ MODULE_LICENSE("Dual MIT/GPL");
 
 #define  MODULE_CLASS_NAME  "hive_cdev_class"
 
+#define CHG_BUF _IOW('V','a', unsigned long*)
+#define ADD_PHR _IOW('B','b', unsigned long*)
+
 /**
  * struct alloc_status - bit field, stores resource allocation flags
  * @dev_created: character device has been successfully created
@@ -41,10 +42,11 @@ struct alloc_status {
 };
 // start with everything non-done
 static struct alloc_status alloc_flags = { 0 };
+struct rb_root mytree = RB_ROOT;
 
 /**
  * struct hive_flist_item - stores data for each descriptor
- * @list: fields to link the list
+ * @node: fields to link the tree
  * @file: created on open(), removed on close()
  *        changes during file operations, but ptr stays the same
  * @buffer: memory we allocate for each file
@@ -54,10 +56,10 @@ static struct alloc_status alloc_flags = { 0 };
  *
  * This implementation is not optimal as it imposes linear O(N)
  * lookup through list.
- * TODO: change this to proper associative array or tree 
+ * Completed: change this to tree 
  */ 
-struct hive_flist_item {
-	struct list_head list;
+struct hive_item {
+	struct rb_node node;
 	struct file *file;
 	char *buffer;
 	long length;
@@ -65,7 +67,6 @@ struct hive_flist_item {
 	long wroffset;
 };
 
-LIST_HEAD(hive_flist);
 
 static const char magic_phrase[] = "Wow, we made these bees TWERK !";
 
@@ -84,10 +85,43 @@ static struct cdev hive_cdev; // scull-initialized
 static struct class *hive_class = NULL;
 
 /**
- * hive_flist_new() - creates list item having buffer
+ * tree_insert() - insert item to tree
+ * @root:      pointer to root 
+ * @hive_item: item of struct hive_item
+ */
+int tree_insert(struct rb_root *root, struct hive_item *data)
+{
+	struct rb_node **new = &(root->rb_node), *parent = NULL;
+
+	/* Figure out where to put new node */
+	while (*new) {
+		struct hive_item *this = container_of(*new, struct hive_item, node);
+		int result = memcmp(data->file, this->file, sizeof(struct file));
+		
+		parent = *new;
+		if (result < 0) {
+			new = &((*new)->rb_left);
+		} else if (result > 0) {
+
+			new = &((*new)->rb_right);
+
+		} else {
+			return 1;
+		}
+	}
+
+	/* Add new node and rebalance tree. */
+	rb_link_node(&data->node, parent, new);
+	rb_insert_color(&data->node, root);
+
+	return 0;
+}
+
+/**
+ * hive_tree_new() - creates tree item having buffer
  * @buffer_size: numer of characters in buffer
  */
-static inline struct hive_flist_item *hive_flist_new(unsigned long buffer_size)
+static inline struct hive_item *hive_tree_new(unsigned long buffer_size)
 {
 	// (!) here's where kernel memory (probably containing secrets) leaks
         // to userspace...
@@ -95,7 +129,7 @@ static inline struct hive_flist_item *hive_flist_new(unsigned long buffer_size)
 	char *buf = kzalloc(sizeof(*buf) * buffsize, GFP_KERNEL);
 	if (NULL == buf)
 		return NULL;
-	struct hive_flist_item *item = kzalloc(sizeof *item, GFP_KERNEL);
+	struct hive_item *item = kzalloc(sizeof *item, GFP_KERNEL);
 	if (NULL == item) {
 		kfree(buf);	// avoid mem leaks
 		return NULL;
@@ -109,36 +143,45 @@ static inline struct hive_flist_item *hive_flist_new(unsigned long buffer_size)
 }
 
 /**
- * hive_flist_rm() - deletes item from list and frees memory
- * @item: list item
+ * hive_tree_rm() - deletes item from tree and frees memory
+ * @item: tree item
  */
-static inline void hive_flist_rm(struct hive_flist_item *item)
+static inline void hive_tree_rm(struct hive_item *item)
 {
 	if (NULL == item)
 		return;
-	list_del(&item->list);
+	rb_erase(&item->node, &mytree);
 	kfree(item->buffer);
 	kfree(item);
 }
 
 /**
- * hive_flist_get - searches the list
- * @file: field of the list
+ * hive_tree_get - searches the tree
+ * @file: field of the tree
  *
  * Return: item having the field or NULL if not found
- */
-static struct hive_flist_item *hive_flist_get(struct file *file)
+ */ 
+static struct hive_item *hive_tree_get(struct rb_root *root, struct file *file)
 {
-	struct hive_flist_item *item;
-	list_for_each_entry(item, &hive_flist, list) {
-		if (item->file == file)
-			return item;
+	struct rb_node *node = root->rb_node;
+
+	while (node) {
+		struct hive_item *data = container_of(node, struct hive_item, node);
+		int result;
+
+		result = memcmp(data->file, file, sizeof(struct file *));			
+
+		if (result < 0) {
+			node = node->rb_left; 
+		} else if (result > 0) {
+			node = node->rb_right;
+		}
+		else {
+			return data;
+		}
 	}
-	// not found
-	MOD_DEBUG(KERN_ERR, "Expected list entry not found %p", file);
 	return NULL;
 }
-
 
 // For more, see LKD 3rd ed. chapter 13
 /**
@@ -150,15 +193,18 @@ static struct hive_flist_item *hive_flist_get(struct file *file)
  */
 static int cdev_open(struct inode *inode, struct file *file)
 {
-	struct hive_flist_item *item = hive_flist_new(buffsize);
+	struct hive_item *item = hive_tree_new(buffsize);
 	if (NULL == item) {
 		MOD_DEBUG(KERN_ERR, "Buffer allocate failed for %p", file);
 		return -ENOMEM;
 	}
 	// fill the rest
 	item->file = file;
-	list_add(&item->list, &hive_flist);
-	MOD_DEBUG(KERN_DEBUG, "New file entry %p created", file);
+	if (!tree_insert(&mytree, item)) {
+		MOD_DEBUG(KERN_DEBUG, "New file entry %p created", file);
+	} else {
+		MOD_DEBUG(KERN_DEBUG, "New file entry not created");	
+	}
 	return 0;
 }
 
@@ -169,11 +215,11 @@ static int cdev_open(struct inode *inode, struct file *file)
  */
 static int cdev_release(struct inode *inode, struct file *file)
 {
-	struct hive_flist_item *item = hive_flist_get(file);
+	struct hive_item *item = hive_tree_get(&mytree, file);
 	if (NULL == item)
 		return -EBADF;
-	// remove item from list and free its memory
-	hive_flist_rm(item);
+	// remove item from tree and free its memory
+	hive_tree_rm(item);
 	MOD_DEBUG(KERN_DEBUG, "File entry %p unlinked", file);
 	return 0;
 }
@@ -188,17 +234,18 @@ static int cdev_release(struct inode *inode, struct file *file)
 static ssize_t cdev_read(struct file *file, char __user *buf, 
 			 size_t count, loff_t *loff)
 {
-	struct hive_flist_item *item = hive_flist_get(file);
+	struct hive_item *item = hive_tree_get(&mytree, file);
 	if (NULL == item)
 		return -EBADF;
 	// Completed: Add buffer read logic.
 
 	ssize_t retval = 0;
 
-	if(*loff > item->length)		
+	if (*loff > item->length)		
 		goto EXIT;
-	if((count + *loff) > item->length) {
+	if ((count + *loff) > item->length) {
 		MOD_DEBUG(KERN_DEBUG, "Attempt to READ beyond the dev size!");
+		/* read only upte the device size */
 		count = item->length - *loff;
 	}
 
@@ -206,8 +253,8 @@ static ssize_t cdev_read(struct file *file, char __user *buf,
 	retval = count - copy_to_user(buf, (item->buffer + *loff), count);
 	*loff += retval;
 
-	MOD_DEBUG(KERN_DEBUG, " bytes read: %d, position: %d",\
-			(int)retval, (int)*loff);
+	MOD_DEBUG(KERN_DEBUG, "%s: device: bytes read: %d, position: %d\n",\
+			"hive", (int)retval, (int)*loff);
 EXIT:
 	return retval;	
 
@@ -224,7 +271,7 @@ EXIT:
 static ssize_t cdev_write(struct file *file, const char __user *buf,
 			  size_t count, loff_t *loff)
 {
-	struct hive_flist_item *item = hive_flist_get(file);
+	struct hive_item *item = hive_tree_get(&mytree, file);
 	if (NULL == item)
 		return -EBADF;
 
@@ -240,8 +287,8 @@ static ssize_t cdev_write(struct file *file, const char __user *buf,
 	retval = count - copy_from_user((item->buffer + *loff), buf, count);
 	*loff += retval;
 
-	MOD_DEBUG(KERN_DEBUG, " bytes written: %d, position: %d",\
-			 (int)retval, (int)*loff);
+	MOD_DEBUG(KERN_DEBUG, "%s: bytes written: %d, position: %d\n",\
+			"hive", (int)retval, (int)*loff);
 
 EXIT:
 	return retval;
@@ -254,21 +301,22 @@ EXIT:
  * @action: SEEK_SET
  * Description:
  * 		SEEK_SET: set to requested offset
- *		...to be updated in future...
- * Return:
+ *		SEEK_END: set offset to end 
+ * Return: new offset value
  */
 static loff_t cdev_lseek(struct file *file, loff_t f_offset, int action)
 {
 	loff_t new_offset;
-	struct hive_flist_item *item = hive_flist_get(file);
+	struct hive_item *item = hive_tree_get(&mytree, file);
 	if (NULL == item)
 		return -EBADF;
 
-	switch (action)
-	{
+	switch (action) {
 		case SEEK_SET:
 			new_offset = f_offset;
 			break;
+		case SEEK_END:
+			new_offset= strlen(item->buffer);
 
 		default:
 			new_offset = -EINVAL;
@@ -277,25 +325,81 @@ static loff_t cdev_lseek(struct file *file, loff_t f_offset, int action)
 	
 	file->f_pos = new_offset;
 
-	MOD_DEBUG(KERN_DEBUG, "Seeking to position: %ld", (long)new_offset);
+	printk(KERN_DEBUG "%s: device: Seeking to position: %ld\n",\
+		 "/dev/hive_dev", (long) new_offset);
 EXIT:
 	return new_offset;
 }
 
+/**
+ * cdev_ioctl - callback ioctl (!test!)
+ * @file:        file pointer
+ * @ioctl_num:   CHG_BUF, ADD_PHR
+ * @ioctl_param: perameter from userspace
+ * Description:
+ * 		CHG_BUF: set buffer size
+ *		ADD_PHR: append magic phrase to buffer 
+ * Return: 0 or -1 (if fail)
+ */
 
+long cdev_ioctl(struct file *file, unsigned int ioctl_num, 
+			unsigned long ioctl_param)
+{
+	struct hive_item *item = hive_tree_get(&mytree, file);
+	if (NULL == item)
+		return -EBADF;
+	switch(ioctl_num) {
+                case CHG_BUF:
+			if(ioctl_param > item->length) {
+				char *buf = kzalloc(sizeof(*buf) * ioctl_param, 
+							GFP_KERNEL);
+				memcpy(buf, item->buffer, 
+					sizeof(*buf)*item->length);
+				kfree(item->buffer);
+				item->buffer = buf;
+				item->length = ioctl_param;
+				
+			} else {
+				MOD_DEBUG(KERN_DEBUG, "Change buf not required");
+				return -1;
+			}                       
+                        break;
+                case ADD_PHR:
+			if ((strlen(item->buffer) + buffsize/2) > item->length) {
+				char *buf = kzalloc(sizeof(*buf) 
+						* (item->length + buffsize/2), 
+						GFP_KERNEL);				
+				strcat(buf, item->buffer);
+				kfree(item->buffer);
+				strcat(buf, magic_phrase);
+				item->buffer = buf;
+				item->length = item->length + buffsize/2;
+				
+			} else {
+				
+				strcat(item->buffer, magic_phrase);
+			}
+			
+                        break;
+		default:
+			return -1;
+        }
+        return 0;
+}
 
 // This structure is partially initialized here
 // and the rest is initialized by the kernel after call
 // to cdev_init()
-// TODO: add ioctl to append magic phrase to buffer conents to
+// Completed: add ioctl to append magic phrase to buffer conents to
 //       make these bees twerk
-// TODO: add ioctl to select buffer size
+// Completed: add ioctl to select buffer size
 static struct file_operations hive_fops = {
 	.open =    &cdev_open,
 	.release = &cdev_release,
 	.read =    &cdev_read,
 	.llseek =  &cdev_lseek,
 	.write =   &cdev_write,
+	.unlocked_ioctl = &cdev_ioctl,
 	// required to prevent module unloading while fops are in use
 	.owner =   THIS_MODULE,
 };
@@ -312,11 +416,11 @@ static void module_cleanup(void)
 	if (alloc_flags.dev_created) {
 		unregister_chrdev_region(hive_dev, 1);
 	}
-	// paranoid cleanup (afterwards to ensure all fops ended)
-	struct hive_flist_item *item;
-	list_for_each_entry(item, &hive_flist, list) {
-		hive_flist_rm(item);
-		MOD_DEBUG(KERN_DEBUG, "lst cleanup (should never happen)");
+	struct hive_item *item;
+	struct rb_node *node;
+	for (node = rb_first(&mytree); node; node = rb_next(node)) {
+		item = rb_entry(node, struct hive_item, node);		
+		hive_tree_rm(item);
 	}
 }
 
@@ -343,8 +447,8 @@ static int __init cdevmod_init(void)
 	}
 	// Completed: add stuff here to make module register itself in /dev
 	if ((hive_class = class_create(THIS_MODULE, "hive_class")) == NULL) {
-	    unregister_chrdev_region(hive_dev, 1);
-	    return -1;
+		unregister_chrdev_region(hive_dev, 1);
+		return -1;
 	}
 	if (device_create(hive_class, NULL, hive_dev, NULL, "hive_dev") == NULL) {
 		class_destroy(hive_class);
