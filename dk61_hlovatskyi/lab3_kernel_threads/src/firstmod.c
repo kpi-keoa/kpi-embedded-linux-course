@@ -129,7 +129,7 @@ static void __exit firstmod_exit(void)
 	struct list_node *node_to_del;
 	list_for_each_safe(it, tmp, &list_with_nodes) {
 		int list_val = (container_of(it, struct list_node, entry))->data;
-		//	printk(KERN_INFO "List val is %i\n", list_val);
+		printk(KERN_INFO "List val is %i\n", list_val);
 		node_to_del = list_entry(it, struct list_node, entry);
 		list_del(it);
 		kfree(node_to_del);

@@ -13,11 +13,11 @@ dynamically allocated kernel threads and the struct of the lists.
 **Explaining**
 
 Dynamically allocate memory for the threads, variable and lists. 
-This function that we neeed is declared in ```<linux/slab.h>:```
-```void * kmalloc(size_t size, int flags)```
+This function that we neeed is declared in ``<linux/slab.h>:``
+``void * kmalloc(size_t size, int flags)``
 
 Later, when you no longer need the memory, do not forget to free it:
-```void kfree(const void *ptr)```
+``void kfree(const void *ptr)``
 
 
 The flags are broken up into three categories: action modifiers, zone modifiers, and types. 
@@ -26,7 +26,7 @@ The flags are broken up into three categories: action modifiers, zone modifiers,
 
 **Zone modifiers** specify **from where to allocate** memory. The kernel divides physical memory into multiple zones, each of which serves a different purpose. Zone modifiers specify from which of these zones to allocate. 
 
-**Type flags specify a combination of action and zone modifiers** as needed by a certain type of memory allocation. Type flags simplify specifying numerous modifiers; instead, **you generally specify just one type flag**. The ```GFP_KERNEL``` is a type flag, which is used for code in process context inside the kernel. 
+**Type flags specify a combination of action and zone modifiers** as needed by a certain type of memory allocation. Type flags simplify specifying numerous modifiers; instead, **you generally specify just one type flag**. The ``GFP_KERNEL`` is a type flag, which is used for code in process context inside the kernel. 
 
 
 **Implementing**
@@ -39,15 +39,15 @@ Spinlocks were implemented with atomic variables and funcions declared in <asm/a
 
 Use ``make`` to build a module
 The main parts of the code are:
-thread function:
- calculates the value with ```N_THREADS``` of threads by adding an ```increment``` on each step
+
+thread function - calculates the value with ``N_THREADS`` of threads by adding an ``increment`` on each step
 spinlocks - provide correct results by blocking access to the variable for another threads, which are not use variable at that exact time 
 lists -  contain data inside our predeclared structure 
 
 We can declare the value of the:
-```N_THREADS`` - amount of the threads to create
-```increment``` - step for incrementing
-```N_TIMES``` -  amount of steps to do adding
+``N_THREADS`` - amount of the threads to create
+``increment`` - step for incrementing
+``N_TIMES`` -  amount of steps to do adding
 
 **Results**
 
@@ -60,7 +60,7 @@ But with spinlocks result is correct:
 .. image:: img/spinlock.png
 
 
-Just as in user-space, be careful to balance your allocations with your deallocations to prevent memory leaks and other bugs. Note, calling ```kfree(NULL)``` is explicitly checked for and safe.
+Just as in user-space, be careful to balance your allocations with your deallocations to prevent memory leaks and other bugs. Note, calling ``kfree(NULL)`` is explicitly checked for and safe.
 
 
 Used sources:
