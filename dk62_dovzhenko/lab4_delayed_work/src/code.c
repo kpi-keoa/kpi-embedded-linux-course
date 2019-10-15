@@ -92,9 +92,8 @@ void timer_func(struct timer_list *data)
 
 int th_func(void *data)
 {	
-	if ((int *)data == 0) goto TIMER_KTH;
-	if ((int *)data == 1) goto WORK_KTH;
-	TIMER_KTH:
+	if ((int *)data == 0) (	
+		flags.thr_run[0] = true;
 		while (flags.thr_run[0]) {
 			schedule();
 		}
@@ -104,7 +103,8 @@ int th_func(void *data)
 			(int *)data, temp_t->cnt);
 		}
 		do_exit(1);
-	WORK_KTH:
+	} else {
+		flags.thr_run[1] = true;
 		while (flags.thr_run[1]) {
 			schedule();
 		}
@@ -113,7 +113,8 @@ int th_func(void *data)
 			printk(KERN_NOTICE "\tThread - %i. Work elements list #%li!\n", 
 				(int *)data, temp_w->cnt);
 		}
-		do_exit(1);	
+		do_exit(1);
+	}	
 }
 
 static int __init mod_init(void) 
@@ -126,7 +127,7 @@ static int __init mod_init(void)
 
 	for (int i = 0; i < NUMBER_OF_KTHREADS; i ++) {
 		kthreads_ptr[i] = kthread_run(&th_func, (void *)i, "thread_%i", i);
-		flags.thr_run[i] = true;
+		
 	}
 
 	INIT_LIST_HEAD(&first_list.list);
