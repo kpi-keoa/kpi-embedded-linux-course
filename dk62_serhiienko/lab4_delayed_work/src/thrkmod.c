@@ -18,13 +18,8 @@
 #include <linux/workqueue.h>
 #include <linux/interrupt.h>	// used by kernel interrupt
 #include <linux/completion.h>
+#include <linux/semaphore.h>
 
-// LOCK - is defined through Makefile
-#ifdef LOCK
-        #define SPINLOCK 1
-#else
-        #define SPINLOCK 0
-#endif
 
 
 MODULE_DESCRIPTION("threads, lists, synchronization tests");
@@ -37,20 +32,7 @@ static void work_handler(struct work_struct *);
 static void timer_handler(struct timer_list *);
 static void delete_list(struct list_head *_klist);
 static void print_list(struct list_head *_klist);
-/*
-* lock - function which defends shared region(counter) from intruding of alien threads
-* @lock - address of lock variable 
-*/
-static inline void lock(atomic_t *lock);
-/*
-* unlock - function unlocks shared region, so alien threads could intrude the foxhole..
-* @lock - address of lock variable
-*/
-static inline void unlock(atomic_t *lock);
 
-
-
-atomic_t my_lock = ATOMIC_INIT(0);
 
 // module_param(thr_amnt, int, 0);
 // module_param(inc_cnt, int, 0);
@@ -60,7 +42,6 @@ atomic_t my_lock = ATOMIC_INIT(0);
  */
 LIST_HEAD(tmr_list);
 LIST_HEAD(wrk_list);
-
 /**
  * struct k_list - struct of element kernel linked list.
  * @test_list: 	list_head type, which neccessary to provide kernel 
@@ -77,37 +58,26 @@ static struct k_list {
         int thr_num;
         long long data;
 };
-
+static struct thr_struct {
+        struct completion *cmpl;
+        struct list_head *list;
+};
 static struct task_struct *kthread_tmr, *kthread_wrk;
 static struct delayed_work my_work;
-static struct timer_list my_timer;
-static struct completion timer_done, work_done;
+//static struct timer_list my_timer;
+//static struct completion timer_done, work_done;
 DECLARE_COMPLETION(work_done);
 DECLARE_COMPLETION(timer_done);
 DEFINE_TIMER(my_timer, &timer_handler);
-
-
-static int thr_wrk_fnc(void *_unused)
+DEFINE_SEMAPHORE(sema);
+static int thr_fnc(void *args)
 {
-        while (!completion_done(&work_done)) {
-		 schedule();
-   	}
-        printk (KERN_INFO "Thread stopped!\n");
-        lock(&my_lock);
-        print_list(&wrk_list);
-        unlock(&my_lock);
-        return 0;
-}
-
-static int thr_tmr_fnc(void *_unused)
-{
-        while (!completion_done(&timer_done)) {
-		 schedule();
-   	}
-        printk (KERN_INFO "Thread stopped!\n");
-        lock(&my_lock);
-        print_list(&tmr_list);
-        unlock(&my_lock);
+        struct thr_struct *arguments = (struct thr_struct*)args;
+        wait_for_completion(arguments->cmpl);
+        down(&sema);
+        print_list(arguments->list);
+        up(&sema);
+	kfree(arguments);
         return 0;
 }
 
@@ -119,16 +89,16 @@ static void work_handler(struct work_struct *_unused)
                         complete(&work_done);
                         printk(KERN_INFO "Work stopped \n");
                 } else {
-                        struct k_list *klist_wrk = kmalloc(sizeof(*klist_wrk), GFP_ATOMIC);       
+                        struct k_list *klist_wrk = kmalloc(sizeof(*klist_wrk), GFP_KERNEL);       
                         if(NULL == klist_wrk) {
                                 printk(KERN_ERR "Can't allocate memory for list");
                                 kfree(klist_wrk);
                         }
                         klist_wrk->data = jiffies;
                         klist_wrk->thr_num = 2;
-                        lock(&my_lock);
+                        down(&sema);
                         list_add(&klist_wrk->list, &wrk_list);
-                        unlock(&my_lock);
+                        up(&sema);
                         printk(KERN_INFO "jiffies added to work list : %lld\n", klist_wrk->data);
                         schedule_delayed_work(&my_work, 17);
                 }       
@@ -151,9 +121,9 @@ static void timer_handler(struct timer_list *_unused)
                         }
                         klist_tmr->data = jiffies;
                         klist_tmr->thr_num = 1;
-                        lock(&my_lock);
+                        down_trylock(&sema);
                         list_add(&klist_tmr->list, &tmr_list);
-                        unlock(&my_lock);
+                        up(&sema);
                         printk(KERN_INFO "jiffies added to timer list : %lld\n", klist_tmr->data);
                 }                
 }
@@ -183,15 +153,6 @@ static void delete_list(struct list_head *_klist)
         printk(KERN_INFO "Successfully deleted all nodes!\n");
 }
 
-static inline void lock(atomic_t *lock)
-{
-        while(atomic_cmpxchg(lock, 0, 1) == 1);
-}
-
-static inline void unlock(atomic_t *lock)
-{
-        atomic_set(lock, 0);
-}
 /*
 * threads_test_init - init function where battle begins, threads are preparing for a fight (memory allocation)
 *                     but after not a long fight, they're thrown away to trashcan (by deallocating memory)
@@ -203,11 +164,11 @@ static int __init threads_test_init(void)
         struct task_struct *kthread_wrk = kmalloc(sizeof(*kthread_wrk), GFP_KERNEL);
         if(NULL == kthread_wrk ) {
                 printk(KERN_ERR "Can't allocate memory for threads");
-                goto errmem;
+                goto _errmem;
         }
         if(NULL == kthread_tmr) {
                 printk(KERN_ERR "Can't allocate memory for threads");
-                goto _errmem;
+                goto errmem;
         }
         INIT_DELAYED_WORK(&my_work, work_handler);
         schedule_delayed_work(&my_work, msecs_to_jiffies(100));
@@ -215,20 +176,41 @@ static int __init threads_test_init(void)
 
         mod_timer(&my_timer, jiffies + msecs_to_jiffies(120));
         printk(KERN_INFO "timer started!\n");
-
-	kthread_tmr = kthread_run(thr_tmr_fnc, NULL, "thread%d", 0);	
-        kthread_wrk = kthread_run(thr_wrk_fnc, NULL, "thread%d", 1);
-
+        struct thr_struct *tmr_struct, *wrk_struct;
+	tmr_struct = kmalloc(sizeof(*tmr_struct), GFP_KERNEL);
+	if(NULL == tmr_struct) {
+                printk(KERN_ERR "Can't allocate memory for thread_struct");
+                goto errstruct;
+        }
+	wrk_struct = kmalloc(sizeof(*wrk_struct), GFP_KERNEL);
+	if(NULL == wrk_struct) {
+                printk(KERN_ERR "Can't allocate memory for thread_struct");
+                goto _errstruct;
+        }
+	tmr_struct->cmpl = &timer_done;
+	tmr_struct->list = &tmr_list;
 	
+	wrk_struct->cmpl = &work_done;
+	wrk_struct->list = &wrk_list;
+	kthread_tmr = kthread_run(thr_fnc, (void*)tmr_struct, "thread%d", 0);	
+        kthread_wrk = kthread_run(thr_fnc, (void*)wrk_struct, "thread%d", 1);
+
         flush_scheduled_work();
 	return 0;
 
+	_errstruct:
+		kfree(wrk_struct);
+		goto errstruct;
+
+	errstruct:
+		kfree(tmr_struct);
+		goto errmem;
+
         errmem:
-                kfree(kthread_wrk);
-                return 0;
-        
-        _errmem:
                 kfree(kthread_tmr);
+                goto _errmem;
+
+        _errmem: 
                 kfree(kthread_wrk);
                 return 0;
 
@@ -239,18 +221,17 @@ static int __init threads_test_init(void)
 */
 static void __exit threads_test_exit(void)
 {
-        if(!completion_done(&work_done)) {
-                kthread_stop(kthread_wrk);
-        }
-
-        if(!completion_done(&timer_done)) {
-                kthread_stop(kthread_tmr);
-        }
-
+	if(!completion_done(&work_done)) {
+		complete(&work_done);
+	}
+	if(!completion_done(&timer_done)) {	
+		complete(&timer_done);
+	}
         del_timer_sync(&my_timer);
         cancel_delayed_work(&my_work);
         kfree(kthread_tmr);
         kfree(kthread_wrk);
+	
         delete_list(&tmr_list);
         delete_list(&wrk_list);
         printk(KERN_ALERT "EXIT!\n");
