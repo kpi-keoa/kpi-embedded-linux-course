@@ -1,0 +1,13 @@
+#!/bin/sh
+ 
+mount -t proc none /proc
+echo 0 > /proc/sys/kernel/randomize_va_space
+mount -t sysfs none /sys
+mount -t debugfs none /sys/kernel/debug
+mount -t devtmpfs none /dev
+mount /dev/sda /mnt
+
+echo -e "\nBoot took $(cut -d' ' -f1 /proc/uptime) seconds\n"
+ 
+exec /bin/sh
+
