@@ -32,8 +32,8 @@ struct struct_for_res {
 	long int num;
 };
 
-struct struct_for_res frst_list;
-struct struct_for_res scnd_list;
+static struct struct_for_res frst_list;
+static struct struct_for_res scnd_list;
 struct task_struct **kth_ptr = NULL;
 
 bool frst_kth_flag;
@@ -43,7 +43,7 @@ bool wrk_flag;
 
 static void tmr_handler(struct timer_list *data)
 {
-	long int j = jiffies;
+	long j = jiffies;
 	struct struct_for_res *tmr_ptr = NULL;
 	if (j%11 == 0) {
 		printk(KERN_INFO "Stop timer jiffies value is: %li\n", j);
@@ -95,7 +95,7 @@ int frst_kth_func(void *data)
 		printk(KERN_NOTICE "Timer list element #%li!\n",
 			frst_kth_ptr->num);
 	}
-	do_exit(0);
+	do_exit(1);
 }
 
 int scnd_kth_func(void *data)
@@ -108,7 +108,7 @@ int scnd_kth_func(void *data)
 		printk(KERN_NOTICE "Work list element #%li!\n",
 			scnd_kth_ptr->num);
 	}
-	do_exit(0);
+	do_exit(1);
 }
 
 static int __init kmod_init(void)
@@ -118,20 +118,20 @@ static int __init kmod_init(void)
 	kth_ptr = kmalloc(sizeof *kth_ptr * 2, GFP_KERNEL);
 	if (!kth_ptr) 
 		goto kth_Error;
+	frst_kth_flag = true;
 	kth_ptr[0] = kthread_create(&frst_kth_func, (void *)0, "kthread_0");
 	if(kth_ptr[0])
 		wake_up_process(kth_ptr[0]);
-	frst_kth_flag = true;
+	scnd_kth_flag = true;
 	kth_ptr[1] = kthread_create(&scnd_kth_func, (void *)1, "kthread_1");
 	if(kth_ptr[1])
 		wake_up_process(kth_ptr[1]);
-	scnd_kth_flag = true;
 	INIT_LIST_HEAD(&frst_list.list);
 	INIT_LIST_HEAD(&scnd_list.list);
-	mod_timer(&mytimer, jiffies + msecs_to_jiffies(1000));
 	tmr_flag = true;
-	schedule_delayed_work(&mywork, msecs_to_jiffies(1100));
+	mod_timer(&mytimer, jiffies + msecs_to_jiffies(1000));
 	wrk_flag = true;
+	schedule_delayed_work(&mywork, msecs_to_jiffies(1100));
 	printk(KERN_INFO "Module is setup!");
 	return 0;
 	
@@ -163,14 +163,16 @@ static void __exit kmod_exit(void)
 	struct list_head *tmp;
 	if (frst_list.list.next) {
 		list_for_each_safe(head_ptr, tmp, &(frst_list.list)) {
-			struct_ptr = list_entry(head_ptr, struct struct_for_res, list);
+			struct_ptr = list_entry(head_ptr, struct struct_for_res,
+				 list);
 			list_del(head_ptr);
 			kfree(struct_ptr);		
 		}
 	}
 	if (scnd_list.list.next) {
 		list_for_each_safe(head_ptr, tmp, &(scnd_list.list)) {
-			struct_ptr = list_entry(head_ptr, struct struct_for_res, list);
+			struct_ptr = list_entry(head_ptr, struct struct_for_res,
+				 list);
 			list_del(head_ptr);
 			kfree(struct_ptr);		
 		}
