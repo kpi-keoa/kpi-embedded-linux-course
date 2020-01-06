@@ -2,7 +2,7 @@
 # (!) using paths with spaces may not work with Kbuild
 
 # this is what is used by Kbuild
-obj-m += firstmod.o
+obj-m += gdb_test_mod.o
 ccflags-m += -std=gnu11 -g3 -DDEBUG
 
 ccflags-y += ${ccflags-m}
