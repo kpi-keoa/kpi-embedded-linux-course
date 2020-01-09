@@ -1,0 +1,38 @@
+# based on https://linux.die.net/lkmpg/hello2.html by Peter Jay Salzman
+# (!) using paths with spaces may not work with Kbuild
+
+# this is what is used by Kbuild
+obj-m += src/firstmod.o
+obj-ko += src/firstmod.ko
+# directory containing Makefile for kernel build
+KBUILDDIR := /lib/modules/$(shell uname -r)/build/
+USERNAME = HL36
+
+.PHONY: all modules clean tidy install run remove start
+
+# recur to the original kernel Makefile with some additions
+all: clean modules start
+start: install run remove
+
+modules:
+	$(MAKE) -C "$(KBUILDDIR)" M="$(PWD)" modules
+
+tidy:
+	$(MAKE) -C "$(KBUILDDIR)" M="$(PWD)" clean
+
+# we link original clean to target named tidy
+clean:
+	-rm -f modules.order Module.symvers
+	-rm -rf .tmp_versions
+	-rm -f $(obj-m) $(obj-m:.o=.mod.o) $(obj-m:.o=.mod.c)
+	-rm -f $(addsuffix .cmd,$(addprefix .,$(obj-m)))
+	-rm -f $(addsuffix .cmd,$(addprefix .,$(obj-m:.o=.ko)))
+	-rm -f $(addsuffix .cmd,$(addprefix .,$(obj-m:.o=.mod.o)))
+
+install:
+	sudo insmod $(obj-ko) username=$(USERNAME)
+run:
+	sudo dmesg -k | tail -3
+remove:
+	sudo rmmod $(obj-ko)
+
