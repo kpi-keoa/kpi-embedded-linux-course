@@ -1,4 +1,11 @@
 # Based on GitHub C.gitignore (https://github.com/github/gitignore)
+
+#Executable
+main
+
+#Building artefacts
+.build
+
 # Prerequisites
 *.d
 
@@ -51,4 +58,3 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
-
