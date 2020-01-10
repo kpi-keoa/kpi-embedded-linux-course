@@ -16,7 +16,7 @@
 
 MODULE_DESCRIPTION("Basic module demo: init, deinit, printk, jiffies");
 MODULE_AUTHOR("maksimo0");
-MODULE_VERSION("0.1");
+MODULE_VERSION("0.2");
 MODULE_LICENSE("Dual MIT/GPL");// this affects the kernel behavior
 
 static char *username= "";

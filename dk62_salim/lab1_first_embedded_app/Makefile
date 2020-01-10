@@ -22,4 +22,3 @@ help:
 	@echo make run - run executable files
 	@echo make clean - clean all files after running make commands
 	
-

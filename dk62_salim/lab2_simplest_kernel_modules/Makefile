@@ -1,5 +1,7 @@
-# based on https://linux.die.net/lkmpg/hello2.html by Peter Jay Salzman
-# directory managenment based on https://bit.ly/2mbc6Lp made by Dana Dovzhenko
+# made by thodnev based on https://linux.die.net/lkmpg/hello2.html by Peter Jay Salzman
+# used by DovzhenkoD, introducing directory structure problems
+# gracefully fixed by thodnev
+# finally used here with minor changes
 # (!) using paths with spaces may not work with Kbuild
 
 SRCDIR = src
