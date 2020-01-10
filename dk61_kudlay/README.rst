@@ -14,4 +14,4 @@ Main info
 Contact info:
 --------------
 
-* Telegram: `@cyberspider <https://t.me/cyberspider>`__
+* Telegram: `@cyber_spider <https://t.me/cyber_spider>`__
