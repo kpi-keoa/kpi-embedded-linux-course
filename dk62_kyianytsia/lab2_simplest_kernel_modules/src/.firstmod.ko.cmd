@@ -1,0 +1,1 @@
+cmd_/home/hl36/work/simplest/src/firstmod.ko := ld -r -m elf_x86_64  -z max-page-size=0x200000 -T ./scripts/module-common.lds  --build-id  -o /home/hl36/work/simplest/src/firstmod.ko /home/hl36/work/simplest/src/firstmod.o /home/hl36/work/simplest/src/firstmod.mod.o ;  true
