@@ -1,0 +1,40 @@
+#include <linux/module.h>  // required by all modules
+#include <linux/moduleparam.h>
+#include <linux/kernel.h>  // required for sysinfo
+#include <linux/init.h>    // used by module_init, module_exit macros
+#include <linux/jiffies.h>  // where jiffies and its helpers reside
+
+
+MODULE_DESCRIPTION("Basic module demo: init, deinit, printk, jiffies");
+MODULE_AUTHOR("Yesych Dmytro");
+MODULE_VERSION("0.1");
+MODULE_LICENSE("Dual MIT/GPL");    // this affects the kernel behavior
+
+long count_start;
+char *usrname = NULL;
+
+module_param(usrname, charp, 0);
+MODULE_PARM_DESC(usrname, "user name");
+
+static int __init firstmod_init(void)
+{
+        count_start = jiffies;
+    	char str[] = "$usrname";
+        if(!usrname) {
+                printk(KERN_WARNING "username wasn`t passed as a parameter\n");
+                usrname = str;
+        }
+
+        printk(KERN_INFO "Hello, %s!\njiffies = %lu\n", usrname, jiffies);
+
+        return 0;
+}
+
+static void __exit firstmod_exit(void)
+{
+        long delta = jiffies - count_start;
+        printk(KERN_INFO "god save the Kernel!\n work timinsmod mnt/firstmod.koe : %u sec\n",jiffies_delta_to_msecs(delta) / 1000);
+}
+
+module_init(firstmod_init);
+module_exit(firstmod_exit);
