@@ -14,10 +14,10 @@ module_param(username, charp, 0000);
 MODULE_PARM_DESC(username, "User name");
 static typeof(jiffies) stime;
 
-static int __init firstmod_init(void)
+static int __init mod_init(void)
 {
     stime = jiffies;
-    if (username) {
+    if (username != NULL) {
         printk(KERN_INFO "Hello, %s!\njiffies = %lu\n", username, jiffies);
     } else {
         printk(KERN_INFO "Hello, $username!\njiffies = %lu\n", jiffies);
@@ -26,11 +26,11 @@ static int __init firstmod_init(void)
     return 0;
 }
 
-static void __exit firstmod_exit(void)
+static void __exit mod_exit(void)
 {
     printk(KERN_INFO "Long live the Kernel! Worked %u seconds\n",
            jiffies_delta_to_msecs(jiffies - stime) / 1000);
 }
 
-module_init(firstmod_init);
-module_exit(firstmod_exit);
+module_init(mod_init);
+module_exit(mod_exit);

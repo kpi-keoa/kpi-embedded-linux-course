@@ -1,13 +1,16 @@
 # (!) using paths with spaces may not work with Kbuild
 
 # this is what is used by Kbuild
-obj-m := firstmod.o
+obj-m := lab1mod.o
 
 
 V?= 2
 
 # directory containing Makefile for kernel build
-KBUILDDIR:= ../../../huinya/yadro/linux-5.8.7
+# KBUILDDIR:= ../linux-5.8.7
+ifeq ($(KBUILDDIR)k,k)
+    $(error set KBUILDDIR above)
+endif
 
 # Do not print "Entering directory" on recursive make call if not verbose
 MAKEFLAGS+= $(if $(value V),,--no-print-directory)
