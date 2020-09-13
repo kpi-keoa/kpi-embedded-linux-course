@@ -7,13 +7,12 @@ V ?= 2
 
 # directory containing Makefile for kernel build
 KBUILDDIR ?= ../linux-5.8.8
-PWD = ../lab_1
+PWD = $(CURDIR)
 
 # variables connected with "run"
 
 bzImagePATH = ../bzImage
 initramfsPATH = ../initramfs.cpio.gz
-moduleDIR = ../lab_1
 RAM_SIZE = 1024M
 
 # Do not print "Entering directory" on recursive make call if not verbose
@@ -37,7 +36,7 @@ clean:
 	-rm -f $(addsuffix .cmd,$(addprefix .,$(obj-m:.o=.ko)))
 	-rm -f $(addsuffix .cmd,$(addprefix .,$(obj-m:.o=.mod.o)))
 
-run: modules
+run:
 	qemu-system-x86_64 -enable-kvm -m $(RAM_SIZE) -smp 4 -kernel  $(bzImagePATH) \
 	-initrd $(initramfsPATH) -append "console=ttyS0" -nographic \
-	-drive file=fat:rw:$(moduleDIR),format=raw,media=disk
+	-drive file=fat:rw:$(PWD),format=raw,media=disk

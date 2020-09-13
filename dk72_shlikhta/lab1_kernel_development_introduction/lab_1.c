@@ -11,7 +11,7 @@ MODULE_LICENSE("Dual MIT/GPL"); // this affects the kernel behavior
 
 static char *username = NULL;
 
-long start_time;
+static typeof(jiffies) start_time = 0;
 
 module_param(username, charp, 0);
 MODULE_PARM_DESC(username, "Name of user");
@@ -21,16 +21,13 @@ static int __init lab_1_init(void)
 {
 	start_time = jiffies;
 
-	if (!username) {
+	if (NULL == username) {
+		username = "$username";
 		printk(KERN_WARNING "<username> wasn't defined:(\n");
-		printk(KERN_INFO "Hello, $username!\njiffies = %lu\n", jiffies);
-
-	} else {
-		printk(KERN_INFO "Hello, %s!\njiffies = %lu\n", username, 
-			jiffies);
 	}
 
-	
+	printk(KERN_INFO "Hello, %s!\njiffies = %lu\n", username, jiffies);
+
 	return 0;
 }
 
