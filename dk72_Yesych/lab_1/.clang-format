@@ -23,7 +23,7 @@ IncludeBlocks: Preserve
 ColumnLimit: 99		
 UseTab: Never		
 TabWidth: 8			
-IndentWidth: 4		
+IndentWidth: 8		
 SpacesBeforeTrailingComments: 4	
 ContinuationIndentWidth: 8		
 BreakBeforeBinaryOperators: NonAssignment

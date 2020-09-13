@@ -21,7 +21,7 @@
 * qemu та qemu-arch-extra - емулятор на якому буде запускатися ядро 
 * bc та cpio потребуються системою зборки ядра 
 
-code block::
+.. code-block:: bash
 
  sudo pacman -S base-devel qemu qemu-arch-extra bc cpio
 
@@ -29,13 +29,13 @@ code block::
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 після налагодження конфігурації ядра потрібно запустити його збірку високорівневим мейкфайлом:
 
-code block::
+.. code-block:: bash
 
  make -j5 vmlinux 
 
 збірка мінімального набору user-space програм.
 
-code block::
+.. code-block:: bash
 
  make  CRYPT_AVAILABLE=n -jN install 
 
@@ -45,7 +45,7 @@ code block::
 
 Після всіх вище зазначених операцій запуск ядра виглядає наступним чином:
 
-code block::
+.. code-block:: bash
 
  qemu-system-x86_64 -no-kvm -m 256M -smp 4 -kernel "./bzImage"\
  	-initrd "./initramfs.cpio.gz" -append "console=ttyS0" -nographic
@@ -91,9 +91,9 @@ code block::
 Висновки
 ---------
 
-в результаті виконання лабораторнрої роботи було зібрано мінімальне ядро linux та набір user space утиліт. Також було створено та протестовано власний модуль ядра. Приклад роботи власного модуля:
+в результаті виконання лабораторнрої роботи було налаштовано середу для збірки linux ядра, зібрано мінімальне ядро linux та набір user space утиліт, емуляція поводилася на емуляторі qemu . Також було створено та протестовано власний модуль ядра. Приклад роботи власного модуля:
 
-code block::
+.. code-block:: bash
 
  / # insmod mnt/mymode.ko
  [   28.587408] mymode: loading out-of-tree module taints kernel.
@@ -109,7 +109,7 @@ code block::
  [  552.883420] jiffies = 4295220205
  / # rmmod mymode
  [  557.612570] god save the Kernel!
- [  557.612570]  work timinsmod mnt/mymode.koe : 4 sec
+ [  557.612570]  work timе mnt/mymode.koe : 4 sec
 
 
-                               
+Тестування створеного модуля ядра проводилось двічі в першому випадку ядру не було передано параметрів, і в цьому випадку згідно з завданням модуль повідомляє про те що параметер ``username`` не заданий виводячи відповідне сповіщення в лог ядра з лог рівнем ``KERN_WARNING``, а замість імʼя користувача виводить :``$usrname``. При закритті модуля в лог ядра виводиться жартівлива фраза та відображається час роботи.
