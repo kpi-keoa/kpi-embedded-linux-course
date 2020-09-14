@@ -7,8 +7,6 @@ CFLAGS = -Wall -Wpedantic
 LDFLAGS := -pthread
 OBJS := $(SRC:.c=.o)
 
-#gcc -O2 -Wall -Wpedantic -c ./thread.c -pthread -o ./thread
-
 .PHONY: all clean tidy asm
 
 all: | clean $(TARGET)

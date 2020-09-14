@@ -2,6 +2,7 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <assert.h>
 
 volatile unsigned long global = 0;
@@ -20,37 +21,39 @@ void *increment_func(void *args)
 	}
 }
 
-int check(char *arg, long *result)
+bool is_valid(char *arg, long *result)
 {
-	int res;
+	long res;
 	char sym;
-	if (1 != sscanf(arg, "%d\"%c\"", &res, &sym))
-		return 1;
-	else *result = res;
-		return 0;
+	if (1 != sscanf(arg, "%ld\"%c\"", &res, &sym))
+		return true;
+	else {
+		*result = res;
+		return false;
+	}
 }
 
 int main(int argc, char *argv[]) 
 {
 	if (argc != 3) {
-		fprintf(stderr, "\nERR: Function can only be used 2 input arguments!!!\n\n");
+		fprintf(stderr, "ERR: Function can only be used 2 input arguments!!!\n");
 		exit(EXIT_FAILURE);
 	}
 	
 	struct params steps;
 
-   	if (check(argv[1], &steps.K) || check(argv[2], &steps.N)) {
-        	fprintf(stderr, "\nERR: Wrong input type!!!\n\n");
+   	if (is_valid(argv[1], &steps.K) || is_valid(argv[2], &steps.N)) {
+        	fprintf(stderr, "ERR: Wrong input type!!!\n");
         	exit(EXIT_FAILURE);
 	}
 
-	pthread_t threads_1, threads_2;	
+	pthread_t threads[2];
 
-	pthread_create(&threads_1, NULL, &increment_func, &steps);
-	pthread_create(&threads_2, NULL, &increment_func, &steps);
+	pthread_create(&threads[0], NULL, &increment_func, &steps);
+	pthread_create(&threads[1], NULL, &increment_func, &steps);
 
-	pthread_join(threads_1, NULL);
-	pthread_join(threads_2, NULL);
+	pthread_join(threads[0], NULL);
+	pthread_join(threads[1], NULL);
 	
 	long thread_res = global;
 	
@@ -59,7 +62,7 @@ int main(int argc, char *argv[])
 	for(long i = 0; i < 2; i++) {
 		increment_func(&steps);
 	}
-	printf("\n\nExpected: %ld, got: %ld\n\n\n", global, thread_res);
+	printf("Expected: %ld, got: %ld\n", global, thread_res);
 	
 	return 0;
 }
