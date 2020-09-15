@@ -1,7 +1,13 @@
 
+<<<<<<< HEAD
 /*  The code is borrowed from the site:
      https://www.sites.google.com/site/miptcscourses/seminars/4-sem/4-fupm-frtk/parallelism
      and supplemented. */
+=======
+/*  Код позаимствован из сайта:
+    https://www.sites.google.com/site/miptcscourses/seminars/4-sem/4-fupm-frtk/parallelism
+    и дополнен. */
+>>>>>>> d49dcc7431807823acdfc399c3be0dae17ffc4e9
 
 #include <pthread.h>
 #include <stdio.h>

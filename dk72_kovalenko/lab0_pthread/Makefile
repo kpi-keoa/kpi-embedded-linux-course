@@ -24,4 +24,8 @@ $(TARGET): $(OBJS)
 asm: 
 	$(CC) $(CFLAGS) $(LDFLAGS) -fverbose-asm -S $(SRCS) -o $(TARGET).S
 
+<<<<<<< HEAD
 .PHONY: clean all asm 
+=======
+.PHONY: clean all 
+>>>>>>> d49dcc7431807823acdfc399c3be0dae17ffc4e9
