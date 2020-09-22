@@ -19,7 +19,7 @@ module_param(delay, int, 0000);
 MODULE_PARM_DESC(cnt, "Number of cycles");
 MODULE_PARM_DESC(delay, "Delay between 2 cycles in the unit of system timer ticks");
 static typeof(jiffies) *time_array;
-static struct timer_list my_timer;
+static struct timer_list my_timer = {0};
 
 void tasklet_handler(unsigned long arg)
 {

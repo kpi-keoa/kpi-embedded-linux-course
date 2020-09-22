@@ -7,7 +7,7 @@ obj-m := lab2mod.o
 V?= 2
 
 # directory containing Makefile for kernel build
-KBUILDDIR:= ../../../huinya/yadro/linux-5.8.7
+# KBUILDDIR:= ../linux-5.8.7
 ifeq ($(KBUILDDIR)k,k)
     $(error set KBUILDDIR above)
 endif
