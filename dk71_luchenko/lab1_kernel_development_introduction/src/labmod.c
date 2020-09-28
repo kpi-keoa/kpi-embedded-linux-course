@@ -10,7 +10,9 @@ MODULE_VERSION("0.1");
 MODULE_LICENSE("Dual MIT/GPL");	//it affects the kernel behavior
 
 static char *username = NULL;
+
 module_param(username, charp, 0);
+MODULE_PARM_DESC(username, "User name");
 
 static long start_jiffies = 0;
 
