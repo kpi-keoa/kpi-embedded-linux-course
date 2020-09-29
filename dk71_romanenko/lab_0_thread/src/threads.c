@@ -18,13 +18,13 @@ void *counting_thread(void *args)
 
 int main(int argc, char *argv[])
 {
-	if(argc != NUM_OF_THREADS) {
-		perror ("WTF!WHERE THIS THEREADS\n");		
-	    	exit (EXIT_FAILURE);
+	if(argc != 2) {
+		perror("WTF!WHERE THIS THEREADS\n");		
+	    	exit(EXIT_FAILURE);
 	}
 	
 	long steps;
-	assert (1 == sscanf(argv[1], "%ld", &steps));
+	assert (1 == sscanf("%ld", argv[1], &steps));
 	
 	pthread_t *threads = calloc(NUM_OF_THREADS, sizeof(*threads));
 	
@@ -47,6 +47,4 @@ int main(int argc, char *argv[])
 	printf("Expected: %ld, got: %ld, it is - %s\n", global_var, later_thread, (global_var == later_thread ? "OK" : "FAIL"));
 	
 	return 0;
-
-}	
-	
+}		
