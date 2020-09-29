@@ -10,17 +10,18 @@ MODULE_VERSION("0.1");
 MODULE_LICENSE("GPL");
 
 static char *username = NULL;
-static int time_from_start;
 
 module_param(username, charp, 0);
 MODULE_PARM_DESC(username, "user name");
+
+static int time_from_start;
 
 static int __init firstmod_init(void)
 {
     	time_from_start = jiffies;
 
     	if(username == NULL) 	
-		printk(KERN_WARNING "User wasn't printed his username \n");
+		printk(KERN_WARNING "Username is not defined \n");
 		username = "$username";
 	}
 	
