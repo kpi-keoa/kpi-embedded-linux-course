@@ -1,4 +1,4 @@
-TARGET = pthreads
+TARGET = threads
 SRCS := threads.c
 
 
@@ -9,7 +9,7 @@ OPT_FLAG ?= -O0
 
 
 
-CFLAGS = -march=x86-64 -mtune=generic $(OPT_FLAG) -Wall -Wextra -Wpedantic  
+CFLAGS = -std=c18 -mtune=generic $(OPT_FLAG) -Wall -Wextra -Wpedantic  
 LDFLAGS = $(CFLAGS) -Wl,-as-needed $(addprefix -,$(LIBS))
 ASMFLAGS = $(LDFLAGS) -fverbose-asm -S
 

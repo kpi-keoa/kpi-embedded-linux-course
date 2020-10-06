@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 
 typedef unsigned long type_cnt;
 
@@ -15,7 +16,7 @@ struct var {
 void *func(void *the_val) {
 
   type_cnt val_n = ((struct var *)the_val)->num;
-  type_cnt val_cnt = ((struct var *)the_val)->count;
+  type_cnt val_cnt = (( struct var *)the_val)->count;
 
   for (type_cnt i = 0; i < val_cnt; i++) {
     gl_var += val_n;
@@ -23,7 +24,7 @@ void *func(void *the_val) {
   pthread_exit(0);
 }
 
-bool check_in(char *arg, type_cnt *res) {
+bool is_valfit(char *arg, type_cnt *res) {  // was partially taken from Nikita Luchenko lab_0
   int result;
   char unused;
   if (1 != sscanf(arg, "%d\"%c\"", &result, &unused))
@@ -40,24 +41,23 @@ int main(int argc, char *argv[]) {
   if (argc != 3) {
     fprintf(stderr, "%s : wrrong amount of arguments : %d ; should be 2 \n",
             argv[0], argc - 1);
-    exit(1);
+    exit(EXIT_FAILURE);
   }
 
-  if (check_in(argv[1], &used_var.num) || check_in(argv[2], &used_var.count)) {
-
+  if (is_valfit(argv[1], &used_var.num) || is_valfit(argv[2], &used_var.count)) {
     fprintf(stderr, "\nWrong input types\n");
-    exit(1);
+    exit(EXIT_FAILURE);
   }
 
   pthread_t *threads = (pthread_t *)malloc(2 * sizeof(pthread_t));
 
   for (int i = 0; i < 2; i++) {
-
     pthread_create(&(threads[i]), NULL, &func, &used_var);
   }
 
-  for (int i = 0; i < 2; i++)
+  for (int i = 0; i < 2; i++) {
     pthread_join(threads[i], NULL);
+  }
 
   free(threads);
 
