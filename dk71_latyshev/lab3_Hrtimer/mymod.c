@@ -22,9 +22,6 @@ static int i;
 static unsigned long *t_array = NULL;
 static ktime_t ktime;
 static struct hrtimer timer1 = {0} ;
-struct alloc_info 
-
-static struct alloc_info alloc;
 
 module_param(cnt, int, 0);
 MODULE_PARM_DESC(cnt, "ammount of cycles that timer works");
@@ -49,13 +46,6 @@ enum hrtimer_restart timer_handler(struct hrtimer *data)
 
 }
 
-void dealoc(struct alloc_info *alloc)
-{
-        if (alloc->arr) {
-                kfree(t_array);
-                printk(KERN_INFO "exit>> dealoc: array is deallocated");
-        }
-}
 
 DECLARE_TASKLET(tasklet1, tasklet_handler, (unsigned long)NULL);
 
@@ -81,9 +71,7 @@ static int __init testmod_init(void)
                 printk(KERN_ERR "\n");
                 status = -ENOMEM;
                 goto exit;
-        } else {
-                alloc.arr = 1;
-        }
+       
 
         printk(KERN_INFO "Init>> jiffies is %lu\n", jiffies);
 
@@ -116,7 +104,7 @@ static void __exit testmod_exit(void)
                 printk(KERN_INFO "exit>> countrer number %d has the %lu"
                         "jiffies val", i, t_array[i]);
 
-        dealoc(&alloc);
+       
 
         printk(KERN_INFO "exit>> god save the Kernel!"
                 "; jiffies = %lu\n", jiffies);
