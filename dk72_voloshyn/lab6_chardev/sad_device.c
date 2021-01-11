@@ -70,8 +70,8 @@ static long sad_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 }
 
 static struct file_operations fops = {
-	.owner      	= THIS_MODULE,
-	.unlocked_ioctl = sad_ioctl,
+	.owner      		= THIS_MODULE,
+	.unlocked_ioctl 	= sad_ioctl,
 };
 
 static int __init sad_driver_init(void)

@@ -7,8 +7,8 @@
 #include<unistd.h>
 #include<sys/ioctl.h>
 
-#define WR_VALUE _IOW('a','a',int32_t*)
-#define RD_VALUE _IOR('a','b',int32_t*)
+#define WR_VALUE _IOW('a', 'a', int32_t *)
+#define RD_VALUE _IOR('a', 'b', int32_t *)
 
 int main()
 {
