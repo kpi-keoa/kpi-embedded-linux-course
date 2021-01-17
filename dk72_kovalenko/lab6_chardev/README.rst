@@ -102,11 +102,11 @@ Major номер для пристрою можна задати двома шл
     
 У ході виконання лабораторної роботи були використані наступні джерела:
 
-    [1](http://dmilvdv.narod.ru/Translate/LDD3/Linux_Device_Drivers_3_ru.pdf),
+[1](http://dmilvdv.narod.ru/Translate/LDD3/Linux_Device_Drivers_3_ru.pdf),
 
-    [2](https://www.doc-developpement-durable.org/file/Projets-informatiques/cours-&-manuels-informatiques/Linux/Linux%20Kernel%20Development,%203rd%20Edition.pdf),
+[2](https://www.doc-developpement-durable.org/file/Projets-informatiques/cours-&-manuels-informatiques/Linux/Linux%20Kernel%20Development,%203rd%20Edition.pdf),
 
-    [3](https://elixir.bootlin.com/).
+[3](https://elixir.bootlin.com/).
 
 
 
