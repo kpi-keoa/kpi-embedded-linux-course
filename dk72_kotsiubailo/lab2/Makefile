@@ -1,7 +1,7 @@
 # (!) using paths with spaces may not work with Kbuild
 
 # this is what is used by Kbuild
-obj-m += lab2.o
+obj-m += lab_2.o
 
 V ?= 2
 PWD =$(CURDIR)
