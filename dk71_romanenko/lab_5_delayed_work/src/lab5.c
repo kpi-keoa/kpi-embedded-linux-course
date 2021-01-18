@@ -48,14 +48,14 @@ static int timer_func(void *data)
 
         unsigned long engage_jiff;
 
-        timeval *t = kzalloc(sizeof(*t), GFP_KERNEL);
+	timeval *t = kzalloc(sizeof(*t), GFP_KERNEL);
 	engage_jiff = jiffies;
 
 	if((engage_jiff % th_val) == 0)
 		while_flag = 0;
 
 	schedule_timeout_uninterruptible(msecs_to_jiffies(jffdelay));
-        t->time = jiffies_to_msecs(engage_jiff);
+	t->time = jiffies_to_msecs(engage_jiff);
 	list_add_tail(&(t->ptr), &timer_list);
 	if (kthread_should_stop() || !while_flag)
 		return 0;
@@ -71,13 +71,13 @@ static void queue_func(struct work_struct *w)
 
         unsigned long engage_jiff;
 
-        timeval *t = kzalloc(sizeof(*t), GFP_KERNEL);
+	timeval *t = kzalloc(sizeof(*t), GFP_KERNEL);
 	engage_jiff = jiffies;
 
 	if((engage_jiff % wrk_val) == 0)
 		return;
 
-        t->time = jiffies_to_msecs(engage_jiff);
+	t->time = jiffies_to_msecs(engage_jiff);
 	list_add_tail(&(t->ptr), &queue_list);
 
 	schedule_delayed_work(mine_work, jffdelay);
@@ -95,7 +95,7 @@ static int queue_th_func(void *data)
 
 static int __init lab5_init(void)
 {
-        int status = 0;
+	int status = 0;
 
 	if (th_val <= 0) {
 		pr_err("Invalid th_val <= 0 :(\n");
@@ -124,9 +124,9 @@ static int __init lab5_init(void)
 
 	if ((mine_work = kzalloc(sizeof(*mine_work), GFP_KERNEL)) == NULL) 
 	{
-                printk(KERN_ERR "Couldn't allocate a memory:(\n");
-                status = -ENOMEM;
-                goto epic_fail;
+         	printk(KERN_ERR "Couldn't allocate a memory:(\n");
+         	status = -ENOMEM;
+         	goto epic_fail;
         }
 
 	threads[0] = kthread_run(timer_func, NULL, "timer thread");
@@ -154,7 +154,7 @@ static void __exit lab5_exit(void)
 	struct list_head *pos = NULL;
 	struct list_head *tmp;
 
-        pr_info("Exit jiffies is %lu\n", jiffies);
+	pr_info("Exit jiffies is %lu\n", jiffies);
 	cancel_delayed_work(mine_work);
 
 
@@ -184,7 +184,7 @@ static void __exit lab5_exit(void)
 
 	pr_info("%s: exit\n", module_name(THIS_MODULE));
 
-        pr_info("Hello Kernel!\n");
+	pr_info("Hello Kernel!\n");
 }
 
 
