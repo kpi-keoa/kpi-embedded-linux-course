@@ -46,7 +46,7 @@ typedef struct __timeval {
 static int timer_func(void *data)
 {
 
-        unsigned long engage_jiff;
+	unsigned long engage_jiff;
 
 	timeval *t = kzalloc(sizeof(*t), GFP_KERNEL);
 	engage_jiff = jiffies;
@@ -69,7 +69,7 @@ static int timer_func(void *data)
 static void queue_func(struct work_struct *w)
 {
 
-        unsigned long engage_jiff;
+	unsigned long engage_jiff;
 
 	timeval *t = kzalloc(sizeof(*t), GFP_KERNEL);
 	engage_jiff = jiffies;
@@ -127,7 +127,7 @@ static int __init lab5_init(void)
          	printk(KERN_ERR "Couldn't allocate a memory:(\n");
          	status = -ENOMEM;
          	goto epic_fail;
-        }
+	}
 
 	threads[0] = kthread_run(timer_func, NULL, "timer thread");
 	get_task_struct(threads[0]);
