@@ -13,6 +13,14 @@ MODULE_AUTHOR("Morel/luchik");
 MODULE_VERSION("0.1.1");
 MODULE_LICENSE("Dual MIT/GPL");
 
+enum MOOD {
+	MOOD_DEFAULT = 0,
+	MOOD_SJ,
+	MOOD_KIND,
+	MOOD_YODA,
+	MOOD_PHILOSOPHICAL
+};
+
 static int major = 0;
 module_param(major, int, 0);
 MODULE_PARM_DESC(major, "Major number. Defaults to 0 (automatic allocation)");
