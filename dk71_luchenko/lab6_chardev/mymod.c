@@ -6,16 +6,8 @@
 #include <linux/slab.h>
 #include <linux/cdev.h>
 
-enum MOOD
-{
- 	MOOD_DEFAULT,
-	MOOD_SJ,
-	MOOD_KIND,
- 	MOOD_YODA,
- 	MOOD_PHILOSOPHICAL
-};
-MOOOD mood_enum;
 
+	
 MODULE_DESCRIPTION("Char device to tell read count");
 MODULE_AUTHOR("Morel/luchik");
 MODULE_VERSION("0.1.1");
@@ -35,7 +27,7 @@ struct pass_param {
 	char msg[255];
 };
 
-#define IOC_MAGIC	'AAA'
+#define IOC_MAGIC	'A'
 #define SET_MOOD	_IOW(IOC_MAGIC, 0, uint)
 
 static const char *devname = THIS_MODULE->name;
@@ -58,7 +50,6 @@ static int cdev_open(struct inode *inode, struct file *file)
 	if (files_counter)
 		return -EBUSY;
 
-ё
 	switch (mood) {
 		case MOOD_SJ:
 		sprintf(params->msg, "Ah Shit, Here We Go Again %d times!\n", counter++);
@@ -89,8 +80,7 @@ static int cdev_release(struct inode *inode, struct file *file)
 	return 0;
 }
 
-static ssize_t cdev_read(struct file *file, char __user *buf,
-			 size_t count, loff_t *loff)
+static ssize_t cdev_read(struct file *file, char __user *buf, size_t count, loff_t *loff)
 {
 	int bytes_read = 0;
 	if (*msg_Ptr == 0)
@@ -146,7 +136,7 @@ static int __init cdevmod_init(void)
 
 	if (status) {
 		goto err_handler;
-	}msg
+	}
 
 	cdev_init(&my_cdev, &pass_gen_fops);
 	// after call below the device becomes active
