@@ -47,7 +47,7 @@ int main(int argc, char const *argv[])
         errno = EINVAL;
         goto err;
     } else {
-        if ((conv_u64(argv[1], &nthreads) && conv_u64(argv[2], &end)) == 0) {
+        if (((conv_u64(argv[1], &nthreads) == 0) || (conv_u64(argv[2], &end) == 0))) {
             errno = EINVAL;
             goto err;
         }
