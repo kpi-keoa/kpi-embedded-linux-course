@@ -16,17 +16,16 @@ MODULE_VERSION("0.1");
 MODULE_LICENSE("Dual MIT/GPL");    // this affects the kernel behavior
 
 static int tim_cnt = 0;    // current amount of expired counters
-static int cnt = NULL;
-static int delay = NULL;
-static int i;
-static bool final = NULL;
+static bool final = false;
 static unsigned long *t_array = NULL;
 static ktime_t ktime;
 static struct hrtimer timer1 = {0};
 
+static int cnt = 0;
 module_param(cnt, int, 0);
 MODULE_PARM_DESC(cnt, "ammount of cycles that timer works");
 
+static int delay = 0;
 module_param(delay, int, 0);
 MODULE_PARM_DESC(delay, "a delay of the timer");
 
@@ -38,12 +37,12 @@ void tasklet_handler(unsigned long data)
 enum hrtimer_restart timer_handler(struct hrtimer *data)
 {
         t_array[tim_cnt] = jiffies;
-        //from current moment
-        hrtimer_forward(&timer1,timer1.base->get_time(),ktime);
-        final = ++tim_cnt < cnt;
+        final = ++tim_cnt >= cnt;
         if (final)
-                return HRTIMER_RESTART;
-        return HRTIMER_NORESTART;
+                //from current moment
+                hrtimer_forward_now(&timer1,ktime);
+                return HRTIMER_NORESTART;
+        return HRTIMER_RESTART;
 
 }
 
@@ -99,7 +98,8 @@ static void __exit testmod_exit(void)
                         " completely");
 
         pr_info("exit>> tim_cnt: %d", tim_cnt);
-
+        
+        int i;
         for (i = 0; i < tim_cnt; i++)
                 pr_info("exit>> countrer number %d has the %lu"
                         " jiffies val", i, t_array[i]);
