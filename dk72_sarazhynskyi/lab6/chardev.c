@@ -1,6 +1,6 @@
-#include <linux/module.h>	// required by all modules
-#include <linux/kernel.h>	// required for sysinfo
-#include <linux/init.h>		// used by module_init, module_exit macros
+#include <linux/module.h> // required by all modules
+#include <linux/kernel.h> // required for sysinfo
+#include <linux/init.h> // used by module_init, module_exit macros
 #include <linux/fs.h>
 #include <linux/errno.h>
 #include <linux/slab.h>
@@ -31,8 +31,8 @@ struct pass_param {
 	char msg[255];
 };
 
-#define IOC_MAGIC	'L'
-#define SET_MOOD	_IOW(IOC_MAGIC, 0, uint)
+#define IOC_MAGIC 'L'
+#define SET_MOOD _IOW(IOC_MAGIC, 0, uint)
 
 static const char *devname = THIS_MODULE->name;
 
@@ -56,23 +56,31 @@ static int cdev_open(struct inode *inode, struct file *file)
 
 	files_counter++;
 	switch (mood) {
-		case MOOD_AGGRESSIVE:
-		sprintf(params->msg, "You hear me, a piece of ***\n"
-				"I see you here for the %d time!\n", counter++);
+	case MOOD_AGGRESSIVE:
+		sprintf(params->msg,
+			"You hear me, a piece of ***\n"
+			"I see you here for the %d time!\n",
+			counter++);
 		break;
-		case MOOD_INSANITY:
-		sprintf(params->msg, "Did I ever tell you what insanity is?\n"
-				"This is when you come here for the %d time\n"
-				"and think that something will change\n", counter++);
+	case MOOD_INSANITY:
+		sprintf(params->msg,
+			"Did I ever tell you what insanity is?\n"
+			"This is when you come here for the %d time\n"
+			"and think that something will change\n",
+			counter++);
 		break;
-		case MOOD_PLAYFUL:
-		sprintf(params->msg, "Hmmm beautiful, are you back to me?\n"
-				"You know this is the %d time?\n", counter++);
+	case MOOD_PLAYFUL:
+		sprintf(params->msg,
+			"Hmmm beautiful, are you back to me?\n"
+			"You know this is the %d time?\n",
+			counter++);
 		break;
-		case MOOD_PHILOSOPHICAL:
-		sprintf(params->msg, "The foundation of wisdom is patience. %d\n", counter++);
+	case MOOD_PHILOSOPHICAL:
+		sprintf(params->msg,
+			"The foundation of wisdom is patience. %d\n",
+			counter++);
 		break;
-		default:
+	default:
 		sprintf(params->msg, "Now it opened %d times!\n", counter++);
 		break;
 	}
@@ -89,8 +97,8 @@ static int cdev_release(struct inode *inode, struct file *file)
 	return 0;
 }
 
-static ssize_t cdev_read(struct file *file, char __user *buf,
-			 size_t count, loff_t *loff)
+static ssize_t cdev_read(struct file *file, char __user *buf, size_t count,
+			 loff_t *loff)
 {
 	int bytes_read = 0;
 	if (*msg_Ptr == 0)
@@ -101,7 +109,7 @@ static ssize_t cdev_read(struct file *file, char __user *buf,
 		count--;
 		bytes_read++;
 	}
-return bytes_read;
+	return bytes_read;
 }
 
 static long cdev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
@@ -109,7 +117,7 @@ static long cdev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 	if (_IOC_TYPE(cmd) != IOC_MAGIC)
 		return -ENOTTY;
 
-	switch(cmd) {
+	switch (cmd) {
 	case SET_MOOD:
 		mood = (uint)arg;
 		pr_info("Now mood is - %d\n", (uint)arg);
@@ -121,14 +129,13 @@ static long cdev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 	return 0;
 }
 
-
 static struct file_operations pass_gen_fops = {
-	.open 		=    	&cdev_open,
-	.release 	= 	&cdev_release,
-	.read 		=    	&cdev_read,
-	.unlocked_ioctl	= 	&cdev_ioctl,
+	.open = &cdev_open,
+	.release = &cdev_release,
+	.read = &cdev_read,
+	.unlocked_ioctl = &cdev_ioctl,
 	// required to prevent module unloading while fops are in use
-	.owner 		=	THIS_MODULE,
+	.owner = THIS_MODULE,
 };
 
 static int __init cdevmod_init(void)
@@ -151,7 +158,8 @@ static int __init cdevmod_init(void)
 	cdev_init(&my_cdev, &pass_gen_fops);
 	// after call below the device becomes active
 	// so all stuff should be initialized before
-	if ((status = cdev_add(&my_cdev, my_dev, 1))) {
+	status = cdev_add(&my_cdev, my_dev, 1);
+	if (status) {
 		goto err_handler;
 	}
 	pr_info("Registered device with %d:%d\n", MAJOR(my_dev), MINOR(my_dev));
@@ -168,10 +176,9 @@ static void __exit cdevmod_exit(void)
 	unregister_chrdev_region(my_dev, 1);
 
 	// paranoid checking (afterwards to ensure all fops ended)
-	if(files_counter != 0) {
-		pr_err("Some files still opened:(");	// should never happen
+	if (files_counter != 0) {
+		pr_err("Some files still opened:("); // should never happen
 	}
-
 }
 
 module_init(cdevmod_init);
