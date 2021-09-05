@@ -1,0 +1,91 @@
+#include <linux/module.h>    // required by all modules
+#include <linux/kernel.h>    // required for sysinfo
+#include <linux/init.h>    // used by module_init, module_exit macros
+#include <linux/jiffies.h>    // where jiffies and its helpers reside
+#include <linux/moduleparam.h>
+#include <linux/interrupt.h>
+#include <linux/timer.h>
+#include <linux/slab.h>
+#include <linux/mm.h>
+
+MODULE_DESCRIPTION("tasklets + timers");
+MODULE_AUTHOR("SadAnton");
+MODULE_VERSION("0.1");
+MODULE_LICENSE("Dual MIT/GPL");    // this affects the kernel behavior
+
+static int cnt_arr = 0;
+static unsigned long *array;
+static struct timer_list timer;
+static int cnt_print = 0;
+
+static int delay = 0;
+module_param(delay, int, 0);
+MODULE_PARM_DESC(delay, "timer's delay");
+
+static int cnt = 0;
+module_param(cnt, int, 0);
+MODULE_PARM_DESC(cnt, "Count of cycles, that the timer should be run");
+
+void tasklet_print_jiff(unsigned long value)
+{
+	printk(KERN_INFO "Value of tasklet jiffies = %lu \n", jiffies);
+}
+
+DECLARE_TASKLET(tasklet, tasklet_print_jiff, 0);
+
+void timer_func(struct timer_list *data)
+{
+	array[cnt_arr] = jiffies;
+	if(++cnt_arr < cnt)
+		mod_timer(&timer, jiffies + msecs_to_jiffies(delay));
+}
+
+static int __init mod_init(void)
+{
+	printk(KERN_INFO "Value of jiffies = %lu \n", jiffies); // Print init's jiff
+	tasklet_schedule(&tasklet);				// Print tasklet's jiff
+	
+	int status = 0;	
+	
+	if (cnt <= 0 || delay < 0) {
+		printk(KERN_ERR "cnt <= 0 or delay < 0\n");
+		status = -EINVAL;
+		goto error;
+   	}
+
+	array = kzalloc(cnt * sizeof(*array), GFP_KERNEL);
+	
+	if (array == NULL) {
+        	printk(KERN_ALERT "Fail in allocated");
+        	status = -ENOMEM;
+        	goto error;
+    	}
+	
+	timer_setup(&timer, timer_func, 0);
+    	mod_timer(&timer, jiffies + msecs_to_jiffies(delay));
+	
+error:
+	return status;
+}
+
+static void __exit mod_exit(void)
+{
+	tasklet_kill(&tasklet);
+	del_timer(&timer);
+
+	printk(KERN_INFO "Exit jiffies is %lu\n", jiffies);
+
+	if(cnt_arr != cnt)
+		printk(KERN_WARNING "Array isn't full\n");
+
+	for (cnt_print = 0; cnt_print < tmp_cnt; cnt_print++)
+		printk(KERN_INFO "Array number - %d, jiff value - %lu", cnt_print, array[cnt_print]);
+	
+	kfree((const void)*array);
+
+	printk(KERN_INFO "Vzhuh! \n");
+}
+
+module_init(mod_init);
+module_exit(mod_exit);
+

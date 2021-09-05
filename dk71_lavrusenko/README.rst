@@ -1,0 +1,1 @@
+Lavrusenko Oleksandr, DK-71 group / Лаврусенко Олександр Іванович, група ДК-71 / `@sashalavrus <https://github.com/sashalavrus>`_ / `@la_viss <https://t.me/la_viss>`_
