@@ -4,6 +4,5 @@ Student List
 =======  ================
 Student  Directory
 =======  ================
-Name     `demo </demo>`_
+Bohdan   `dk82_rudiuk </dk82_rudiuk>`_
 =======  ================
- 
