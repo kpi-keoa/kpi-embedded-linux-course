@@ -1,10 +1,12 @@
 Student List
 ############
 
-==============  =============================
-Student         Directory
-==============  =============================
-Name            `demo </demo>`_
-Vitalii Romakh  `dk81_romakh </dk81_romakh>`_
-==============  =============================
- 
+==================  =========================================
+Student             Directory
+==================  =========================================
+Zherebchenko Roman  `dk81_zherebchenko </dk81_zherebchenko>`_
+Rudiuk Bohdan       `dk82_rudiuk </dk82_rudiuk>`_
+Tkachuk Yurii       `dk82_tkachuk </dk82_tkachuk>`_
+Vitalii Romakh      `dk81_romakh </dk81_romakh>`_
+==================  =========================================
+
