@@ -1,9 +1,11 @@
 Student List
 ############
-
-=======  ================
-Student  Directory
-=======  ================
-Yevhen   `dk82_nysh </dk82_nysh>`_
-=======  ================
  
+==================  =========================================
+Student             Directory
+==================  =========================================
+Zherebchenko Roman  `dk81_zherebchenko </dk81_zherebchenko>`_
+Rudiuk Bohdan       `dk82_rudiuk </dk82_rudiuk>`_
+Tkachuk Yurii		    `dk82_tkachuk </dk82_tkachuk>`_
+Nysh Yevhenii       `dk82_nysh </dk82_nysh>`_
+==================  =========================================
