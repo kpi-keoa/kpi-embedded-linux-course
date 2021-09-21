@@ -64,7 +64,7 @@ void pseudo_animation(const char *message, int seq[], int seq_length)
 	printf("%s:\n\n", message);
 
 	const int upper_delay_ms = 250;
-	const int lower_delay_ms = 125S;
+	const int lower_delay_ms = 125;
 	for (int i = 0; i < seq_length - 1; i++) {
 		char num_ascii = seq[i] + '0';
 		// Get up on one line \033[A and remove all from it \33[2K
