@@ -13,7 +13,7 @@ int rand_value(void)
 
 void set_color(int seed)
 {
-   switch (seed) {
+    switch (seed) {
     case 0:
         printf(red);
         break;
