@@ -1,10 +1,7 @@
-Student List
-############
-
-==================  =========================================
 Student             Directory
 ==================  =========================================
 Bobronnikov Andrii  `dk82_bobronnikov </dk82_bobronnikov>`_
+Demydenko Oleksii   `dk82_demydenko </dk82_demydenko>`_
 Dmytruk Alexander   `dk82_dmytruk </dk82_dmytruk>`_
 Kotov Boleslav      `dk81_kotov </dk81_kotov>`_
 Lazarenko Andrii    `dk81_lazarenko </dk81_lazarenko>`_
