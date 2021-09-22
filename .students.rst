@@ -6,6 +6,7 @@ Student             Directory
 ==================  =========================================
 Bobronnikov Andrii  `dk82_bobronnikov </dk82_bobronnikov>`_
 Kotov Boleslav      `dk81_kotov </dk81_kotov>`_
+Lazarenko Andrii    `dk81_lazarenko </dk81_lazarenko>`_
 Levytska Mariia     `dk81_levytska </dk81_levytska>`_
 Rudiuk Bohdan       `dk82_rudiuk </dk82_rudiuk>`_
 Tkachuk Yurii       `dk82_tkachuk </dk82_tkachuk>`_
