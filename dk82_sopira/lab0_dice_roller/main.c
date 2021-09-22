@@ -13,10 +13,11 @@ uint32_t clamp_ui32(uint32_t val, uint32_t min, uint32_t max)
 
 int main(int argc, char **argv)
 {
-    rnd_init(SYS_RAND_PTR, RND_TYPE_URANDOM);
+    rnd_t sys_rand;
+    rnd_init(&sys_rand, RND_TYPE_URANDOM);
 
-    uint32_t plr_roll = 1 + srnd_get32() % 6;    // player dice roll
-    uint32_t eai_roll = 1 + srnd_get32() % 6;    // enemy ai dice roll
+    uint32_t plr_roll = 1 + srnd_get32(&sys_rand) % 6;    // player dice roll
+    uint32_t eai_roll = 1 + srnd_get32(&sys_rand) % 6;    // enemy ai dice roll
 
     // lying to the user or having them lie to us
     if (argc > 1) {
@@ -37,6 +38,6 @@ int main(int argc, char **argv)
         printf("A draw!\n");
     }
 
-    rnd_free(SYS_RAND_PTR, RND_TYPE_URANDOM);
+    rnd_free(&sys_rand, RND_TYPE_URANDOM);
     return 0;
 }

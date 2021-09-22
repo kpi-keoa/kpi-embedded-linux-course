@@ -39,13 +39,13 @@ size_t rnd_get(rnd_t *rnd, uint8_t *arr, size_t len)
     return fread(arr, sizeof(*arr), len, rnd->_file);
 }
 
-uint32_t srnd_get32(void)
+uint32_t srnd_get32(rnd_t *sys_rand)
 {
-    if (NULL == SYS_RAND_PTR || NULL == SYS_RAND_PTR->_file)
+    if (NULL == sys_rand || NULL == sys_rand->_file)
         return RND_EARG;
 
     uint32_t result = -1;
-    fread(&result, sizeof(uint32_t), 1, SYS_RAND_PTR->_file);
+    fread(&result, sizeof(uint32_t), 1, sys_rand->_file);
 
     return result;
 }
