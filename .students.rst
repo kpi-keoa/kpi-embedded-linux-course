@@ -6,6 +6,7 @@ Student             Directory
 ==================  =========================================
 Zherebchenko Roman  `dk81_zherebchenko </dk81_zherebchenko>`_
 Rudiuk Bohdan       `dk82_rudiuk </dk82_rudiuk>`_
-Tkachuk Yurii		`dk82_tkachuk </dk82_tkachuk>`_
+Tkachuk Yurii		    `dk82_tkachuk </dk82_tkachuk>`_
 Bobronnikov Andrii	`dk82_bobronnikov </dk82_bobronnikov>`_
+Yatsyshyn Nazar     `dk82_yatsyshyn </dk82_yatsyshyn>`_
 ==================  =========================================
