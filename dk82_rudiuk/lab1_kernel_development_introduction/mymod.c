@@ -9,17 +9,16 @@ MODULE_VERSION("0.1");
 MODULE_LICENSE("Dual MIT/GPL");		// this affects the kernel behavior
 
 static char *user = NULL;
-module_param(user, charp, 0);
-
 static long start_jiffies = 0;
+module_param(user, charp, 0);
 
 static int __init firstmod_init(void)
 {
 	start_jiffies = jiffies;
-	if(user == NULL) {
-    	printk(KERN_WARNING "Module starts without username", user, jiffies);
+	if (user == NULL) {
+    		printk(KERN_WARNING "Module starts without username", user, jiffies);
 		user = "$username";
-    }
+    	}
 	printk(KERN_INFO "Hello, %s!\n Jiffies = %lu\n", user, jiffies);
 	return 0;
 
