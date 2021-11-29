@@ -8,7 +8,9 @@ Lazarenko Andrii    `dk81_lazarenko </dk81_lazarenko>`_
 Levytska Mariia     `dk81_levytska </dk81_levytska>`_
 Rudiuk Bohdan       `dk82_rudiuk </dk82_rudiuk>`_
 Tkachuk Yurii       `dk82_tkachuk </dk82_tkachuk>`_
+Vitalii Romakh      `dk81_romakh </dk81_romakh>`_
 Vitalii Yurchenko   `dk81_yurchenko </dk81_yurchenko>`_
 Yatsyshyn Nazar     `dk82_yatsyshyn </dk82_yatsyshyn>`_
 Zherebchenko Roman  `dk81_zherebchenko </dk81_zherebchenko>`_
 ==================  =========================================
+
