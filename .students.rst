@@ -1,11 +1,19 @@
-Student List
-############
+Student             Directory
 
 ==================  =========================================
-Student             Directory
-==================  =========================================
-Zherebchenko Roman  `dk81_zherebchenko </dk81_zherebchenko>`_
+Bobronnikov Andrii  `dk82_bobronnikov </dk82_bobronnikov>`_
+Demydenko Oleksii   `dk82_demydenko </dk82_demydenko>`_
+Dmytruk Alexander   `dk82_dmytruk </dk82_dmytruk>`_
+Kotov Boleslav      `dk81_kotov </dk81_kotov>`_
+Lazarenko Andrii    `dk81_lazarenko </dk81_lazarenko>`_
+Levytska Mariia     `dk81_levytska </dk81_levytska>`_
+Mianovskyi Vitalii  `dk81_mianovskyi </dk81_mianovskyi>`_
 Rudiuk Bohdan       `dk82_rudiuk </dk82_rudiuk>`_
-Tkachuk Yurii	      `dk82_tkachuk </dk82_tkachuk>`_
-Ruslan Sopira       `dk82_sopira </dk82_sopira>`_
+Sopira Ruslan       `dk82_sopira </dk82_sopira>`_
+Tkachuk Yurii       `dk82_tkachuk </dk82_tkachuk>`_
+Vitalii Romakh      `dk81_romakh </dk81_romakh>`_
+Vitalii Yurchenko   `dk81_yurchenko </dk81_yurchenko>`_
+Yatsyshyn Nazar     `dk82_yatsyshyn </dk82_yatsyshyn>`_
+Zherebchenko Roman  `dk81_zherebchenko </dk81_zherebchenko>`_
 ==================  =========================================
+
