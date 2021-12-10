@@ -10,6 +10,7 @@ Lazarenko Andrii    `dk81_lazarenko </dk81_lazarenko>`_
 Levytska Mariia     `dk81_levytska </dk81_levytska>`_
 Mianovskyi Vitalii  `dk81_mianovskyi </dk81_mianovskyi>`_
 Rudiuk Bohdan       `dk82_rudiuk </dk82_rudiuk>`_
+Shun Pavlo          `dk81_shun </dk81_shun>`_
 Sopira Ruslan       `dk82_sopira </dk82_sopira>`_
 Tkachuk Yurii       `dk82_tkachuk </dk82_tkachuk>`_
 Vitalii Romakh      `dk81_romakh </dk81_romakh>`_
