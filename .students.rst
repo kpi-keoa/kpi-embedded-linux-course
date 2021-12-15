@@ -16,6 +16,6 @@ Tkachuk Yurii       `dk82_tkachuk </dk82_tkachuk>`_
 Vitalii Romakh      `dk81_romakh </dk81_romakh>`_
 Vitalii Yurchenko   `dk81_yurchenko </dk81_yurchenko>`_
 Yatsyshyn Nazar     `dk82_yatsyshyn </dk82_yatsyshyn>`_
+Yehor Krapovnystkyi `dk82_krapovnytskyi </dk82_krapovnytskyi>`_
 Zherebchenko Roman  `dk81_zherebchenko </dk81_zherebchenko>`_
 ==================  =========================================
-
