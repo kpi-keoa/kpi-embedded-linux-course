@@ -21,7 +21,8 @@
 
 Було створено список glob_var_list, який містить в собі структуру my_list_struct та масив потоків thread.
 
-.. code-block:: bash
+    .. code-block:: bash
+
     static LIST_HEAD(glob_var_list);
 
     struct my_list_struct{
@@ -33,7 +34,8 @@
 
 Створено функцію обробник для потока thread_func (для прикладу наведено версію без синхронізації)
 
-.. code-block:: bash
+    .. code-block:: bash
+
     static int thread_func(void *data)
     {
             unsigned long *glob_var_param = data; // copy of data param
@@ -86,6 +88,7 @@
 Запустимо модуль з такими параметрами: thread_num=10 thread_inccnt=2000 thread_delay=0. Після того як модуль відпрацює ми очікуємо, що значення змінної glob_var буде дорівнювати 2000.
 
     .. code-block:: bash
+
     / # insmod /mnt/un_synch.ko thread_num=10 thread_inccnt=2000 thread_delay=0
     / # rmmod un_synch
     [ 1962.366597] un_synch: node[0] glob_var_saved = 19325
@@ -106,6 +109,7 @@
 Запустимо модуль з такими параметрами: thread_num=10 thread_inccnt=2000 thread_delay=0. Після того як модуль відпрацює ми очікуємо, що значення змінної glob_var буде дорівнювати 2000.
 
     .. code-block:: bash
+
     / # insmod /mnt/synch.ko thread_num=10 thread_inccnt=2000 thread_delay=0
     / # rmmod synch
     [ 2268.339447] synch: node[0] glob_var_saved = 19379
@@ -126,6 +130,7 @@
 Запустимо модуль з такими параметрами: thread_num=10 thread_inccnt=2000 thread_delay=0. Після того як модуль відпрацює ми очікуємо, що значення змінної glob_var буде дорівнювати 2000.
 
     .. code-block:: bash
+
     / # insmod /mnt/my_synch.ko thread_num=10 thread_inccnt=2000 thread_delay=0
     / # rmmod my_synch
     [ 2467.893353] my_synch: node[0] glob_var_saved = 19574
