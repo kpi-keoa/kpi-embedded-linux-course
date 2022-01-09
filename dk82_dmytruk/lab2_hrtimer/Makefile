@@ -1,7 +1,7 @@
 # (!) using paths with spaces may not work with Kbuild
 
 # this is what is used by Kbuild
-obj-m += lab2.o
+obj-m += lab2_hrtimer.o
 
 V ?= 2
 
