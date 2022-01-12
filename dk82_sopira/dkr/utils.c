@@ -157,6 +157,22 @@ static enum GAME_ERR __game_load(game_t *engine)
     engine->status = GAME_EOK;
     return GAME_EOK;
 }
+/*
+rnd_t *rnd_create(void)
+{
+    rnd_t *rnd = NULL;
+    rnd = malloc(sizeof(*rnd));
+
+    return rnd;
+}*/
+
+game_t *game_create(void)
+{
+    game_t *engine = NULL;
+    engine = malloc(sizeof(*engine));
+    
+    return engine;
+}
 
 enum GAME_ERR game_init(game_t *engine, uint32_t boundary, enum GAME_STATUS save)
 {
@@ -204,8 +220,8 @@ enum GAME_ERR game_free(game_t *engine)
     if (NULL == engine)
         return GAME_EARG;
                 
-    if (NULL != engine->rand_gen)
-        free(engine->rand_gen);
+    rnd_free(engine->rand_gen);
+    free(engine);
 
     return GAME_EOK;
 }

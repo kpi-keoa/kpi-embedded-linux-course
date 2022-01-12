@@ -59,6 +59,7 @@ typedef struct game_struct {
     uint32_t boundary;
 } game_t;
 
+game_t *game_create(void);
 enum GAME_ERR game_init(game_t *engine, uint32_t boundary, enum GAME_STATUS save);
 enum GAME_ERR game_play(game_t *engine, uint32_t guess);
 enum GAME_ERR game_free(game_t *engine);

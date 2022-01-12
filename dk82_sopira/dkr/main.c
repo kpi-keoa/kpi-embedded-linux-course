@@ -90,25 +90,25 @@ int main(int argc, char **argv)
     argp_parse(&argp, argc, argv, 0, 0, &game_vars);
     
     /* start game */
-    game_t game;
-    game.flags = game_vars.flags;  // set only after parse
+    game_t *game = game_create();
+    game->flags = game_vars.flags;  // set only after parse
     
-    if (game.flags.is_newgame && !game.flags.is_loadgame) {
-        retval = game_init(&game, game_vars.boundary, GAME_NEW);
-    } else if (!game.flags.is_newgame && game.flags.is_loadgame) {
-        retval = game_init(&game, game_vars.boundary, GAME_LOAD);
+    if (game->flags.is_newgame && !game->flags.is_loadgame) {
+        retval = game_init(game, game_vars.boundary, GAME_NEW);
+    } else if (!game->flags.is_newgame && game->flags.is_loadgame) {
+        retval = game_init(game, game_vars.boundary, GAME_LOAD);
         
-        if (game.status == GAME_EOK)
-            retval = game_play(&game, game_vars.guess); 
+        if (game->status == GAME_EOK)
+            retval = game_play(game, game_vars.guess); 
     } else {
         retval = GAME_EARG;
-        if (game.flags.is_verbose)
+        if (game->flags.is_verbose)
             fprintf(stderr, "Invalid option given\n");
         else
             fprintf(stderr, "ERR: %d\n", retval);
     }
     
-    game_free(&game);
+    game_free(game);
     
     return retval;
 }

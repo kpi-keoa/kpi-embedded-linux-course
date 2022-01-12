@@ -27,11 +27,11 @@ enum RND_ERR rnd_init(rnd_t *rnd)
 
 enum RND_ERR rnd_free(rnd_t *rnd)
 {
-    if (NULL == rnd || NULL == rnd->_file)
+    if (NULL == rnd)
         return RND_EARG;
 
     fclose(rnd->_file);
-    rnd->_file = NULL;
+    free(rnd);
 
     return RND_EOK;
 }
