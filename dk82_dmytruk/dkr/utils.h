@@ -24,12 +24,12 @@ enum Path {
 };
 
 enum Errors {
-    EXECUTION_SUCCESSFUL=0,
+    EXECUTION_SUCCESSFUL = 0,
     PATH_ERROR,
     DATE_ERROR
 };
 
 void ls(const char *dir, enum Verbose arg_verb);
-int check_file_time(time_dir* condition, struct tm* check_file);
-void copy_time_to_inst (time_dir* check_file, int day, int hour, int min);
-enum Errors check_date_valid (time_dir* inst);
+int check_file_time(time_dir *condition, struct tm *check_file);
+void copy_time_to_inst(time_dir *check_file, int day, int hour, int min);
+enum Errors check_date_valid(time_dir *inst);
