@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
-//#include <math.h>
+#include <math.h>
 
 enum Verbose {
     VERBOSE_DISABLE,
@@ -71,3 +71,7 @@ int setbit(const int value, const int position);
 int unsetbit(const int value, const int position);
 int switchbit(const int value, const int position);
 int is_number(const char *number);
+int binary_to_decimal(int n);
+int decimal_to_binary(int N);
+int hexadecimal_to_decimal(const char *hexVal);
+void decimal_to_hexadecimal(int n, char *number_str);

@@ -125,6 +125,63 @@ void change_bits(Number *A, int argc, char *argv[])
     case BINARY:
         if (verb)
             fprintf(stdout, "BINARY!\n");
+        A->number = atoi(A->number_str);
+        A->number = binary_to_decimal(A->number);
+
+        if (sb) {
+            for (int i = 2 + verb; i < argc; i++) {
+                if (strcmp("-sb", argv[i]) == 0)
+                    A->number = setbit(A->number, atoi(argv[i+1]));
+            }
+            A->number = decimal_to_binary(A->number);
+            break;
+        }
+        if (usb) {
+            for (int i = 2 + verb; i < argc; i++) {
+                if (strcmp("-usb", argv[i]) == 0)
+                    A->number = unsetbit(A->number, atoi(argv[i+1]));
+            }
+            A->number = decimal_to_binary(A->number);
+            break;
+        }
+        if (fb) {
+            for (int i = 2 + verb; i < argc; i++) {
+                if (strcmp("-fb", argv[i]) == 0)
+                    A->number = switchbit(A->number, atoi(argv[i+1]));
+            }
+            A->number = decimal_to_binary(A->number);
+            break;
+        }
+        if (sbs) {
+            for (int i = 2 + verb; i < argc; i++) {
+                if (strcmp("-sbs", argv[i]) == 0) {
+                    for (int j = i; j < argc - 1; j++)
+                    A->number = setbit(A->number, atoi(argv[j+1]));
+                }
+            }
+            A->number = decimal_to_binary(A->number);
+            break;
+        }
+        if (usbs) {
+            for (int i = 2 + verb; i < argc; i++) {
+                if (strcmp("-usbs", argv[i]) == 0) {
+                    for (int j = i; j < argc - 1; j++)
+                    A->number = unsetbit(A->number, atoi(argv[j+1]));
+                }
+            }
+            A->number = decimal_to_binary(A->number);
+            break;
+        }
+        if (fbs) {
+            for (int i = 2 + verb; i < argc; i++) {
+                if (strcmp("-fbs", argv[i]) == 0) {
+                    for (int j = i; j < argc - 1; j++)
+                    A->number = switchbit(A->number, atoi(argv[j+1]));
+                }
+            }
+            A->number = decimal_to_binary(A->number);
+            break;
+        }
         break;
     case DECIMAL:
         if (verb)
@@ -179,7 +236,64 @@ void change_bits(Number *A, int argc, char *argv[])
         }
         break;
     case HEX:
-        fprintf(stdout, "HEX!\n");
+        if (verb)
+            fprintf(stdout, "HEX!\n");
+        A->number = hexadecimal_to_decimal(A->number_str);
+
+        if (sb) {
+            for (int i = 2 + verb; i < argc; i++) {
+                if (strcmp("-sb", argv[i]) == 0)
+                    A->number = setbit(A->number, atoi(argv[i+1]));
+            }
+            decimal_to_hexadecimal(A->number, A->number_str);
+            break;
+        }
+        if (usb) {
+            for (int i = 2 + verb; i < argc; i++) {
+                if (strcmp("-usb", argv[i]) == 0)
+                    A->number = unsetbit(A->number, atoi(argv[i+1]));
+            }
+            decimal_to_hexadecimal(A->number, A->number_str);
+            break;
+        }
+        if (fb) {
+            for (int i = 2 + verb; i < argc; i++) {
+                if (strcmp("-fb", argv[i]) == 0)
+                    A->number = switchbit(A->number, atoi(argv[i+1]));
+            }
+            decimal_to_hexadecimal(A->number, A->number_str);
+            break;
+        }
+        if (sbs) {
+            for (int i = 2 + verb; i < argc; i++) {
+                if (strcmp("-sbs", argv[i]) == 0) {
+                    for (int j = i; j < argc - 1; j++)
+                    A->number = setbit(A->number, atoi(argv[j+1]));
+                }
+            }
+            decimal_to_hexadecimal(A->number, A->number_str);
+            break;
+        }
+        if (usbs) {
+            for (int i = 2 + verb; i < argc; i++) {
+                if (strcmp("-usbs", argv[i]) == 0) {
+                    for (int j = i; j < argc - 1; j++)
+                    A->number = unsetbit(A->number, atoi(argv[j+1]));
+                }
+            }
+            decimal_to_hexadecimal(A->number, A->number_str);
+            break;
+        }
+        if (fbs) {
+            for (int i = 2 + verb; i < argc; i++) {
+                if (strcmp("-fbs", argv[i]) == 0) {
+                    for (int j = i; j < argc - 1; j++)
+                    A->number = switchbit(A->number, atoi(argv[j+1]));
+                }
+            }
+            decimal_to_hexadecimal(A->number, A->number_str);
+            break;
+        }
         break;
     }
 }
@@ -211,8 +325,90 @@ void number_prefix_delete(Number *A)
 
 void print_number(Number *A)
 {
-    if (verb)
-        fprintf(stdout, "New value: %d\n", A->number);
-    else
-        fprintf(stdout, "%d\n", A->number);
+    if (verb) {
+        if (A->radix != HEX)
+            fprintf(stdout, "New value: %d\n", A->number);
+        else
+            fprintf(stdout, "New value: %s\n", A->number_str);
+    }
+    else {
+        if (A->radix != HEX)
+            fprintf(stdout, "%d\n", A->number);
+        else
+            fprintf(stdout, "%s\n", A->number_str);
+    }
+}
+
+int binary_to_decimal(int n)
+{
+    int num = n;
+    int dec_value = 0;
+    int base = 1;
+    int temp = num;
+
+    while (temp) {
+        int last_digit = temp % 10;
+        temp = temp / 10;
+
+        dec_value += last_digit * base;
+
+        base = base * 2;
+    }
+
+    return dec_value;
+}
+
+int decimal_to_binary(int N)
+{
+    int B_Number = 0;
+    int cnt = 0;
+    while (N != 0) {
+        int rem = N % 2;
+        int c = pow(10, cnt);
+        B_Number += rem * c;
+        N /= 2;
+        cnt++;
+    }
+    return B_Number;
+}
+
+int hexadecimal_to_decimal(const char *hexVal)
+{
+    int len = strlen(hexVal);
+    int base = 1;
+    int dec_val = 0;
+
+    for (int i = len - 1; i >= 0; i--) {
+        if (hexVal[i] >= '0' && hexVal[i] <= '9') {
+            dec_val += ( (int) (hexVal[i]) - 48) * base;
+            base = base * 16;
+        }
+        else if (hexVal[i] >= 'A' && hexVal[i] <= 'F') {
+            dec_val += ((int)(hexVal[i]) - 55) * base;
+            base = base * 16;
+        }
+    }
+    return dec_val;
+}
+
+void decimal_to_hexadecimal(int n, char *number_str)
+{
+    char hexaDeciNum[100];
+    int i = 0;
+    while (n != 0) {
+        int temp = 0;
+        temp = n % 16;
+        if (temp < 10) {
+            hexaDeciNum[i] = temp + 48;
+            i++;
+        }
+        else {
+            hexaDeciNum[i] = temp + 55;
+            i++;
+        }
+        n = n / 16;
+    }
+
+    for (int j = i - 1; j >= 0; j--)
+        number_str[i - j - 1] = hexaDeciNum[j];
 }
