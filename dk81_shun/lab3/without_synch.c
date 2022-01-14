@@ -8,7 +8,7 @@
 #include <linux/sched/task.h>
 
 MODULE_DESCRIPTION("Threads and lists");
-MODULE_AUTHOR("world_conspiracy"); // see LICENCE
+MODULE_AUTHOR("world_conspiracy"); // see LICENSE
 MODULE_VERSION("0.1");
 MODULE_LICENSE("Dual MIT/GPL");    // this affects the kernel behavior
 
