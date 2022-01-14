@@ -29,13 +29,14 @@
 
 ``Спін-блокування`` - семафори є корисним інструментом для взаємного виключення, але вони є не єдиним таким інструментом, що надаються ядром. Замість цього, більшість блокувань здійснюється механізмом, названим спін-блокуванням. На відміну від семафорів, спін-блокування можуть бути використані в коді, який не може спати, такому, як обробники переривань. При правильному застосуванні, спін-блокування пропонують в цілому більш високу продуктивність, ніж семафори. Вони, однак, мають інший набір обмежень на своє використання.
 
-Результат
+**Результат**
 ---------
 
 module `no_sync`
 ~~~~~~~~~~~~~~
 
 .. code-block::
+
 	/mnt # insmod no_sync.ko thread_num=10 thread_inccnt=50 thread_delay=50
 	[  174.400609] no_sync started with: thread_num = 10,
 	[  174.400609]                   thread_inccnt = 50
@@ -63,6 +64,9 @@ module `no_sync`
 
 module `mutex_sync`
 ~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block::
+
 	/mnt # insmod mutex_sync.ko thread_num=10 thread_inccnt=100 thread_delay=1
 	[  473.440283] mutex_sync started with: thread_num = 10,
 	[  473.440283]                   thread_inccnt = 100
@@ -94,6 +98,7 @@ module `my_sync`
 ~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block::
+
 	/mnt # insmod my_sync.ko thread_num=10 thread_inccnt=100 thread_delay=1
 	[  539.582722] my_sync started with: thread_num = 10,
 	[  539.582722]                   thread_inccnt = 100
