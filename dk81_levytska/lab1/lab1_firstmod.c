@@ -6,9 +6,9 @@
 MODULE_DESCRIPTION("Basic module demo: init, deinit, printk, jiffies");
 MODULE_AUTHOR("thodnev & Mary1711");
 MODULE_VERSION("0.1");
-MODULE_LICENSE("Dual MIT/GPL");		// this affects the kernel behavior
+MODULE_LICENSE("Dual MIT/GPL");     // this affects the kernel behavior
 
-static char *name = NULL; 
+static char *name = NULL;
 static long start_jiffies = 0;
 
 module_param(name , charp, 0);
