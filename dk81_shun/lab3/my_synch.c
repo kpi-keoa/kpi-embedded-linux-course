@@ -9,7 +9,7 @@
 #include <linux/bitops.h>
 
 MODULE_DESCRIPTION("Threads and lists");
-MODULE_AUTHOR("world_conspiracy"); // More in LICENCE
+MODULE_AUTHOR("world_conspiracy"); // More in LICENSE
 MODULE_VERSION("0.1");
 MODULE_LICENSE("Dual MIT/GPL");    // this affects the kernel behavior
 
