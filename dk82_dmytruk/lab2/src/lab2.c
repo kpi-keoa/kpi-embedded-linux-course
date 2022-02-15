@@ -1,0 +1,111 @@
+#include <linux/module.h>    // required by all modules
+#include <linux/kernel.h>    // required for sysinfo
+#include <linux/init.h>    // used by module_init, module_exit macros
+#include <linux/jiffies.h>   // where jiffies and its helpers reside
+#include <linux/slab.h>
+#include <linux/interrupt.h>    //tasklets
+#include <linux/timer.h>
+
+MODULE_DESCRIPTION("Tasklets + timers");
+MODULE_AUTHOR("Alexander Dmytruk");
+MODULE_VERSION("0.1");
+MODULE_LICENSE("GPL");
+
+static long cnt = 5;
+static unsigned long delay = 100;
+static unsigned long *array;
+static unsigned long ticks;
+
+module_param(cnt, long, 0);
+module_param(delay, ulong, 0);
+
+MODULE_PARM_DESC(cnt, "Amount of cycles that timer works");
+MODULE_PARM_DESC(delay, "Delay of timer");
+
+static void tasklet1_handler(struct tasklet_struct *data);
+DECLARE_TASKLET(tasklet1, tasklet1_handler);
+
+static void timer1_handler(struct timer_list *list);
+DEFINE_TIMER(timer1, timer1_handler);
+
+static int __init module1_init(void)
+{
+	ticks = 0;
+
+	// print Start jiffies
+	pr_info("init module>> jiffies = %lu\n", jiffies);
+
+	// enable schedule for tasklet1
+	tasklet_schedule(&tasklet1);
+
+	// check if cnt == 0
+	if (0 == cnt) {
+		pr_warn("init>> cnt = 0\n");
+		return 0;
+	}
+
+	// allocate memory
+	array = kmalloc(sizeof(cnt) * cnt, GFP_KERNEL);
+	
+	// check if mem.allocation failed
+	if (NULL == array) {
+		pr_err("init>> array = NULL\n");
+		return 0;
+	}
+
+	// check if delay == 0
+	if (0 == delay) {
+		pr_warn("init>> delay = 0\n");
+	}
+
+	// change period of timer
+	mod_timer(&timer1, jiffies + delay);
+
+	return 0;
+}
+
+static void tasklet1_handler(struct tasklet_struct *data)
+{
+	pr_info("tasklet>> jiffies = %lu\n", jiffies);
+}
+
+static void timer1_handler(struct timer_list *list)
+{
+	// if timer overflow save jiffies to massive
+	array[ticks] = jiffies;
+
+	// incr. ticks
+	ticks++;
+
+	// ticks < cnt, start new tim.
+	if (ticks < cnt)
+		mod_timer(&timer1, jiffies + delay);
+}
+
+
+static void __exit module1_exit(void)
+{
+	long i;
+
+	pr_info("exit module>> jiffies= %lu\n", jiffies);
+
+	tasklet_kill(&tasklet1);
+
+	if (timer_pending(&timer1)) {
+		pr_warn("exit>> timer kill\n");
+	}
+
+	del_timer(&timer1);
+
+	for (i = 0; i < ticks; i++) {
+		pr_info("timer>> array[%lu] jiffies= %lu\n", i, array[i]);
+	}
+
+	if (NULL != array) {
+		kfree(array);
+	}
+}
+
+module_init(module1_init);
+module_exit(module1_exit);
+
